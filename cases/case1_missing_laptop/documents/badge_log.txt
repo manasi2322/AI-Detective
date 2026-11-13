@@ -1,0 +1,18 @@
+---
+id: badge_log
+type: badge_log
+title: Badge reader export - Brightwave Studio
+date: 2026-03-12
+---
+2026-03-12 17:58 | Priya Nair | Main Entrance | EXIT
+2026-03-12 18:02 | Marcus Hale | Main Entrance | EXIT
+2026-03-12 18:21 | Daniel Okafor | Design Lab | EXIT
+2026-03-12 18:25 | Daniel Okafor | Main Entrance | EXIT
+2026-03-12 18:40 | Sam Whitfield | Main Entrance | EXIT
+2026-03-12 19:41 | Marcus Hale | Main Entrance | ENTRY
+2026-03-12 19:44 | Marcus Hale | Design Lab | ENTRY
+2026-03-12 20:30 | Lena Torres | Main Entrance | ENTRY
+2026-03-12 20:47 | Lena Torres | Design Lab | ENTRY
+2026-03-12 22:05 | Lena Torres | Main Entrance | EXIT
+2026-03-13 08:40 | Daniel Okafor | Main Entrance | ENTRY
+2026-03-13 08:44 | Daniel Okafor | Design Lab | ENTRY

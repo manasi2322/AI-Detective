@@ -1,0 +1,13 @@
+---
+id: interview_daniel
+type: interview
+title: Interview with Daniel Okafor (product lead)
+date: 2026-03-12
+author: Daniel Okafor
+---
+Q: Where did you leave the laptop?
+A: At 6:15 PM I locked the prototype laptop in the top drawer of my desk in the Design Lab.
+Q: When did you leave?
+A: I left the building at about 6:25 PM.
+Q: When did you notice it was missing?
+A: When I arrived at 8:45 the next morning, the drawer had been forced open and the laptop was gone.

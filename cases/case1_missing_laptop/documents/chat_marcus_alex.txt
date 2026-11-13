@@ -1,0 +1,10 @@
+---
+id: chat_marcus_alex
+type: chat
+title: Recovered chat - Marcus Hale and Alex Brandt
+date: 2026-03-10
+---
+[2026-03-10 21:14] Alex Brandt: NovaForge can make you an offer, but the team wants to see the Brightwave prototype first.
+[2026-03-10 21:16] Marcus Hale: The prototype is on Daniel's laptop. He keeps it locked in the lab.
+[2026-03-11 22:03] Alex Brandt: Thursday evening works. Bring whatever you can.
+[2026-03-12 20:15] Marcus Hale: Got it. Meet you at the usual place.

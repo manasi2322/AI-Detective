@@ -1,0 +1,10 @@
+---
+id: cctv_summary
+type: cctv
+title: CCTV review summary (security contractor)
+date: 2026-03-12
+---
+2026-03-12 19:40 | Main Entrance camera | A man in a grey hoodie carrying a black backpack enters. His face is not visible.
+2026-03-12 19:58 | Parking Garage camera | The same grey-hoodie figure leaves through the garage stairwell carrying the black backpack and a flat rectangular object under one arm.
+2026-03-12 20:31 | Main Entrance camera | Lena Torres enters pushing a cleaning cart.
+2026-03-12 22:04 | Main Entrance camera | Lena Torres leaves with the cleaning cart. No bags are visible.

@@ -1,0 +1,19 @@
+{
+  "culprit": "Marcus Hale",
+  "motive": "A NovaForge recruiter (Alex Brandt) made a job offer conditional on seeing the Brightwave prototype.",
+  "method": "Marcus left at 18:02, badged back in at 19:41, entered the Design Lab at 19:44, forced the drawer and left through the unbadged Parking Garage stairwell at 19:58.",
+  "key_evidence": [
+    {"doc": "badge_log", "fact": "Marcus Hale re-entered at 19:41 (Main Entrance) and 19:44 (Design Lab)."},
+    {"doc": "cctv_summary", "fact": "A grey-hoodie figure left via the garage stairwell at 19:58 carrying a flat rectangular object."},
+    {"doc": "chat_marcus_alex", "fact": "Marcus discussed handing the prototype to NovaForge and agreed to Thursday evening."}
+  ],
+  "lies": [
+    {"person": "Marcus Hale", "claim": "I didn't come back that night.", "contradicted_by": ["badge_log", "cctv_summary"]},
+    {"person": "Marcus Hale", "claim": "I've never talked to anyone there.", "contradicted_by": ["chat_marcus_alex"]}
+  ],
+  "red_herrings": [
+    {"person": "Lena Torres", "why": "Was in the Design Lab that night (20:47), but after the laptop was already gone; Priya's accusation is speculation."},
+    {"person": "Sam Whitfield", "why": "Wanted the laptop for a demo (email), but left at 18:40 and never badged back in."},
+    {"doc": "notice_kitchen", "why": "Irrelevant facilities notice."}
+  ]
+}

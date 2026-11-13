@@ -1,0 +1,12 @@
+---
+id: interview_priya
+type: interview
+title: Interview with Priya Nair (senior designer)
+date: 2026-03-12
+author: Priya Nair
+---
+Q: Where were you on Thursday evening?
+A: I left a bit before 6 PM. Then I had dinner at Lantern Bistro with a client from 7:00 PM until about 9:30 PM.
+Q: Who do you think took it?
+A: Honestly, it was probably Lena. The cleaners are in that lab every night.
+A: Marcus has seemed stressed about money lately.

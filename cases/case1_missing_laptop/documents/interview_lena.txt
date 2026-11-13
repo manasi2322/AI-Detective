@@ -1,0 +1,13 @@
+---
+id: interview_lena
+type: interview
+title: Interview with Lena Torres (night cleaner)
+date: 2026-03-12
+author: Lena Torres
+---
+Q: What time did your shift start?
+A: I started my shift at 8:30 PM, same as always.
+Q: Did you go into the Design Lab?
+A: I cleaned the Design Lab at around 8:45 PM. The top drawer of Daniel's desk was already open and there was no laptop in it.
+Q: When did you leave?
+A: I left the building at 10 PM.

@@ -1,0 +1,9 @@
+---
+id: notice_kitchen
+type: notice
+title: Facilities notice
+date: 2026-03-11
+author: Facilities
+---
+Reminder: the kitchen fridge will be cleared out on Friday at 5 PM. Please label your lunch containers.
+The coffee machine on the second floor is being repaired.

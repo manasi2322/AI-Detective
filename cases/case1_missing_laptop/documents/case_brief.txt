@@ -1,0 +1,10 @@
+---
+id: case_brief
+type: brief
+title: Case brief - The Missing Prototype Laptop
+date: 2026-03-13
+---
+At 2026-03-13 08:50, Daniel Okafor reported that the Brightwave "Aurora" prototype laptop was missing from the Design Lab.
+The laptop holds the only copy of the unreleased Aurora design files.
+Badge readers log entries at the Main Entrance and at the Design Lab door. Exits through the Parking Garage stairwell do not require a badge.
+People with access to the Design Lab: Marcus Hale, Priya Nair, Lena Torres and Sam Whitfield.

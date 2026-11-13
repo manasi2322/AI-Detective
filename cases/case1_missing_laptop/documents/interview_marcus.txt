@@ -1,0 +1,13 @@
+---
+id: interview_marcus
+type: interview
+title: Interview with Marcus Hale (junior developer)
+date: 2026-03-12
+author: Marcus Hale
+---
+Q: When did you leave the office on Thursday?
+A: I left the office at 6 PM and went straight home. I didn't come back that night.
+Q: Did you know the prototype laptop was in the Design Lab?
+A: Everyone knew Daniel had it. I never touched it.
+Q: Do you know anyone at NovaForge?
+A: No. I've never talked to anyone there.

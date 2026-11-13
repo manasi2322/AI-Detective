@@ -1,0 +1,14 @@
+---
+id: email_sam_daniel
+type: email
+title: Email from Sam Whitfield to Daniel Okafor
+date: 2026-03-12
+author: Sam Whitfield
+---
+From: Sam Whitfield
+To: Daniel Okafor
+Sent: 2026-03-12 16:30
+Subject: Prototype for Friday
+
+Daniel, could I borrow the Aurora prototype laptop for the 10 AM demo with Corvel tomorrow? The client really wants to see it live.
+If not, I'll just use the slides.

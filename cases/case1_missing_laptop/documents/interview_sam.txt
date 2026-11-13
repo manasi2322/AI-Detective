@@ -1,0 +1,13 @@
+---
+id: interview_sam
+type: interview
+title: Interview with Sam Whitfield (sales manager)
+date: 2026-03-12
+author: Sam Whitfield
+---
+Q: When did you leave on Thursday?
+A: I left at 6:40 PM.
+Q: Did you want the prototype laptop?
+A: I asked Daniel to lend me the prototype laptop for Friday's demo, but he said no.
+Q: What did you do that evening?
+A: From 7 PM to 8 PM I was on a video call with a customer from home.

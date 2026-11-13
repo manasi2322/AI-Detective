@@ -1,0 +1,23 @@
+{
+  "id": "case1_missing_laptop",
+  "title": "The Missing Prototype Laptop",
+  "difficulty": "easy",
+  "incident_date": "2026-03-12",
+  "summary": "The only prototype laptop holding Brightwave Studio's unreleased Aurora designs vanished from the Design Lab overnight.",
+  "people": [
+    {"name": "Daniel Okafor", "role": "product lead (laptop owner)", "suspect": false, "aliases": ["Daniel", "Okafor"]},
+    {"name": "Marcus Hale", "role": "junior developer", "suspect": true, "aliases": ["Marcus", "Hale"]},
+    {"name": "Priya Nair", "role": "senior designer", "suspect": true, "aliases": ["Priya", "Nair"]},
+    {"name": "Lena Torres", "role": "night cleaner", "suspect": true, "aliases": ["Lena", "Torres"]},
+    {"name": "Sam Whitfield", "role": "sales manager", "suspect": true, "aliases": ["Sam", "Whitfield"]},
+    {"name": "Alex Brandt", "role": "recruiter at NovaForge (external)", "suspect": false, "aliases": ["Alex", "Brandt"]}
+  ],
+  "locations": [
+    {"name": "Design Lab", "aliases": ["design lab", "the lab"]},
+    {"name": "Main Entrance", "aliases": ["main entrance", "front door"]},
+    {"name": "Parking Garage", "aliases": ["parking garage", "garage stairwell", "garage"]},
+    {"name": "Brightwave Office", "aliases": ["the office", "the building"]},
+    {"name": "Lantern Bistro", "aliases": ["lantern bistro"]},
+    {"name": "Kitchen", "aliases": ["kitchen"]}
+  ]
+}

@@ -1,0 +1,13 @@
+[project]
+name = "ai-detective"
+version = "0.1.0"
+description = "An evidence-grounded AI detective that investigates fictional mystery cases."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+llm = ["anthropic>=2.0", "pydantic>=2.0"]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
