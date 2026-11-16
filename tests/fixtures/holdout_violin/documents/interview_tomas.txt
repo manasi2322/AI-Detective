@@ -1,0 +1,12 @@
+---
+id: interview_tomas
+type: interview
+title: Interview with Tomas Reyes (graduate student)
+date: 2026-05-08
+author: Tomas Reyes
+---
+Q: Where were you on Friday night?
+A: I was at Riverside Hall for the student concert from 8 PM until 11 PM.
+A: After the concert I went back to my flat.
+Q: When were you last in the vault?
+A: I haven't been near the vault since Thursday's lesson.

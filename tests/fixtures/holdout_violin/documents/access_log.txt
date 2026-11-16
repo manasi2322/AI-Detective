@@ -1,0 +1,17 @@
+---
+id: access_log
+type: badge_log
+title: Card access export - Halden Conservatory
+date: 2026-05-08
+---
+2026-05-08 16:50 | Mei Chen | East Door | EXIT
+2026-05-08 17:04 | Ingrid Vos | Instrument Vault | EXIT
+2026-05-08 17:12 | Ingrid Vos | East Door | EXIT
+2026-05-08 17:26 | Hannah Brooks | East Door | ENTRY
+2026-05-08 17:49 | Hannah Brooks | East Door | EXIT
+2026-05-08 21:06 | Tomas Reyes | East Door | ENTRY
+2026-05-08 21:10 | Tomas Reyes | Instrument Vault | ENTRY
+2026-05-08 22:00 | Olu Adeyemi | East Door | ENTRY
+2026-05-09 06:02 | Olu Adeyemi | East Door | EXIT
+2026-05-09 07:55 | Ingrid Vos | East Door | ENTRY
+2026-05-09 08:01 | Ingrid Vos | Instrument Vault | ENTRY

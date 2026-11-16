@@ -60,9 +60,14 @@ def load_case(case_dir: str | Path) -> Case:
             Person(p["name"], p.get("role", ""), bool(p.get("suspect")), tuple(p.get("aliases", ())))
             for p in spec["people"]
         ],
-        locations=[Location(l["name"], tuple(l.get("aliases", ()))) for l in spec["locations"]],
+        locations=[
+            Location(l["name"], tuple(l.get("aliases", ())), bool(l.get("onsite", True)), bool(l.get("entrance", False)))
+            for l in spec["locations"]
+        ],
         documents=documents,
         root=str(root),
+        scene=spec.get("scene"),
+        window=spec.get("window"),
     )
 
 

@@ -19,6 +19,8 @@ class EvidenceKind(str, Enum):
 
 
 RECORD_TYPES = frozenset({"badge_log", "cctv", "brief"})
+# Records that show people moving around the premises (the brief is a record, but not a movement log).
+MOVEMENT_TYPES = frozenset({"badge_log", "cctv"})
 
 
 @dataclass(frozen=True)
@@ -62,6 +64,8 @@ class Person:
 class Location:
     name: str
     aliases: tuple[str, ...] = ()
+    onsite: bool = True  # part of the premises (False: a restaurant, someone's home, ...)
+    entrance: bool = False  # a door where people enter or leave the premises
 
 
 @dataclass
@@ -75,6 +79,11 @@ class Case:
     locations: list[Location]
     documents: dict[str, Document]
     root: str
+    scene: str | None = None  # where the incident happened
+    window: dict | None = None  # {"start": {"doc", "quote"}, "end": {...}}: bounds anchored to evidence
+
+    def location(self, name: str | None) -> Location | None:
+        return next((l for l in self.locations if l.name == name), None)
 
     @property
     def suspects(self) -> list[Person]:

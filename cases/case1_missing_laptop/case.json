@@ -5,19 +5,116 @@
   "incident_date": "2026-03-12",
   "summary": "The only prototype laptop holding Brightwave Studio's unreleased Aurora designs vanished from the Design Lab overnight.",
   "people": [
-    {"name": "Daniel Okafor", "role": "product lead (laptop owner)", "suspect": false, "aliases": ["Daniel", "Okafor"]},
-    {"name": "Marcus Hale", "role": "junior developer", "suspect": true, "aliases": ["Marcus", "Hale"]},
-    {"name": "Priya Nair", "role": "senior designer", "suspect": true, "aliases": ["Priya", "Nair"]},
-    {"name": "Lena Torres", "role": "night cleaner", "suspect": true, "aliases": ["Lena", "Torres"]},
-    {"name": "Sam Whitfield", "role": "sales manager", "suspect": true, "aliases": ["Sam", "Whitfield"]},
-    {"name": "Alex Brandt", "role": "recruiter at NovaForge (external)", "suspect": false, "aliases": ["Alex", "Brandt"]}
+    {
+      "name": "Daniel Okafor",
+      "role": "product lead (laptop owner)",
+      "suspect": false,
+      "aliases": [
+        "Daniel",
+        "Okafor"
+      ]
+    },
+    {
+      "name": "Marcus Hale",
+      "role": "junior developer",
+      "suspect": true,
+      "aliases": [
+        "Marcus",
+        "Hale"
+      ]
+    },
+    {
+      "name": "Priya Nair",
+      "role": "senior designer",
+      "suspect": true,
+      "aliases": [
+        "Priya",
+        "Nair"
+      ]
+    },
+    {
+      "name": "Lena Torres",
+      "role": "night cleaner",
+      "suspect": true,
+      "aliases": [
+        "Lena",
+        "Torres"
+      ]
+    },
+    {
+      "name": "Sam Whitfield",
+      "role": "sales manager",
+      "suspect": true,
+      "aliases": [
+        "Sam",
+        "Whitfield"
+      ]
+    },
+    {
+      "name": "Alex Brandt",
+      "role": "recruiter at NovaForge (external)",
+      "suspect": false,
+      "aliases": [
+        "Alex",
+        "Brandt"
+      ]
+    }
   ],
   "locations": [
-    {"name": "Design Lab", "aliases": ["design lab", "the lab"]},
-    {"name": "Main Entrance", "aliases": ["main entrance", "front door"]},
-    {"name": "Parking Garage", "aliases": ["parking garage", "garage stairwell", "garage"]},
-    {"name": "Brightwave Office", "aliases": ["the office", "the building"]},
-    {"name": "Lantern Bistro", "aliases": ["lantern bistro"]},
-    {"name": "Kitchen", "aliases": ["kitchen"]}
-  ]
+    {
+      "name": "Design Lab",
+      "aliases": [
+        "design lab",
+        "the lab"
+      ]
+    },
+    {
+      "name": "Main Entrance",
+      "aliases": [
+        "main entrance",
+        "front door"
+      ],
+      "entrance": true
+    },
+    {
+      "name": "Parking Garage",
+      "aliases": [
+        "parking garage",
+        "garage stairwell",
+        "garage"
+      ],
+      "entrance": true
+    },
+    {
+      "name": "Brightwave Office",
+      "aliases": [
+        "the office",
+        "the building"
+      ]
+    },
+    {
+      "name": "Lantern Bistro",
+      "aliases": [
+        "lantern bistro"
+      ],
+      "onsite": false
+    },
+    {
+      "name": "Kitchen",
+      "aliases": [
+        "kitchen"
+      ]
+    }
+  ],
+  "scene": "Design Lab",
+  "window": {
+    "start": {
+      "doc": "interview_daniel",
+      "quote": "At 6:15 PM I locked the prototype laptop in the top drawer of my desk in the Design Lab."
+    },
+    "end": {
+      "doc": "case_brief",
+      "quote": "At 2026-03-13 08:50, Daniel Okafor reported that the Brightwave \"Aurora\" prototype laptop was missing from the Design Lab."
+    }
+  }
 }

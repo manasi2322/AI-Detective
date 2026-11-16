@@ -1,0 +1,8 @@
+---
+id: brief
+type: brief
+title: Incident brief - The Vanished Violin
+date: 2026-05-09
+---
+At 2026-05-09 08:05, Professor Ingrid Vos reported that the Aldana violin was missing from the Instrument Vault.
+The East Door and the vault have card readers. The loading dock door opens from the inside without a card.

@@ -1,0 +1,11 @@
+---
+id: interview_mei
+type: interview
+title: Interview with Mei Chen (accompanist)
+date: 2026-05-08
+author: Mei Chen
+---
+Q: When did you finish on Friday?
+A: I finished rehearsing and went home around 4:45 PM.
+Q: Any idea what happened?
+A: I bet Olu let someone in. The guards are always half asleep on Fridays.

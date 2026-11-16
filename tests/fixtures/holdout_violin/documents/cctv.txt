@@ -1,0 +1,9 @@
+---
+id: cctv
+type: cctv
+title: Camera log notes (campus security)
+date: 2026-05-08
+---
+2026-05-08 21:05 | East Door camera | Someone in a long dark coat and a wide hat enters. Face not visible.
+2026-05-08 21:24 | Loading Dock camera | The person in the dark coat exits through the loading dock carrying a violin-shaped case.
+2026-05-08 22:01 | East Door camera | Olu Adeyemi arrives for the night shift.

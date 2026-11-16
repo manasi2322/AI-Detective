@@ -1,0 +1,11 @@
+---
+id: interview_vos
+type: interview
+title: Interview with Professor Ingrid Vos
+date: 2026-05-08
+author: Ingrid Vos
+---
+Q: When did you last see the violin?
+A: I put the violin back in the vault at 5 PM and locked it. I headed out at about 5:10 PM.
+Q: And in the morning?
+A: I came in at 7:55 the next morning and the case was empty.

@@ -21,3 +21,21 @@ def solution1():
 @pytest.fixture(scope="session")
 def inv1(case1):
     return investigate(case1)
+
+
+HOLDOUT = Path(__file__).resolve().parent / "fixtures" / "holdout_violin"
+
+
+@pytest.fixture(scope="session")
+def holdout():
+    return load_case(HOLDOUT)
+
+
+@pytest.fixture(scope="session")
+def holdout_solution():
+    return load_solution(HOLDOUT)
+
+
+@pytest.fixture(scope="session")
+def inv_holdout(holdout):
+    return investigate(holdout)

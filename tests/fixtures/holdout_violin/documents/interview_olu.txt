@@ -1,0 +1,12 @@
+---
+id: interview_olu
+type: interview
+title: Interview with Olu Adeyemi (night security guard)
+date: 2026-05-08
+author: Olu Adeyemi
+---
+Q: When did your shift start?
+A: My shift began at 10 PM.
+Q: Did you notice anything?
+A: Around 11 PM I checked the loading dock and the door was shut.
+A: I don't have a card for the vault, so I never go in there.

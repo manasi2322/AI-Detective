@@ -1,0 +1,16 @@
+{
+  "culprit": "Tomas Reyes",
+  "lies": [
+    {"person": "Tomas Reyes", "claim": "I was at Riverside Hall for the student concert from 8 PM until 11 PM.", "contradicted_by": ["access_log"]}
+  ],
+  "honest": ["Mei Chen", "Olu Adeyemi", "Hannah Brooks"],
+  "speculation": [
+    {"speaker": "Mei Chen", "about": "Olu Adeyemi"},
+    {"speaker": "Hannah Brooks", "about": "Tomas Reyes"}
+  ],
+  "opportunity": {
+    "at scene": ["Tomas Reyes"],
+    "on site": ["Olu Adeyemi", "Hannah Brooks"],
+    "no recorded presence": ["Mei Chen"]
+  }
+}

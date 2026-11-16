@@ -1,0 +1,11 @@
+---
+id: interview_hannah
+type: interview
+title: Interview with Hannah Brooks (piano tuner)
+date: 2026-05-08
+author: Hannah Brooks
+---
+Q: What were you doing at the conservatory?
+A: I tuned the pianos in Studio B from 5:30 PM to 5:45 PM and then left.
+Q: Did you see any students?
+A: Only Tomas, in the corridor on Thursday. Tomas seemed nervous about money.

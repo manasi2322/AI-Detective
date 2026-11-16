@@ -1,0 +1,27 @@
+{
+  "id": "holdout_violin",
+  "title": "The Vanished Violin",
+  "difficulty": "easy (holdout)",
+  "incident_date": "2026-05-08",
+  "summary": "A borrowed 18th-century violin disappeared overnight from the Instrument Vault at Halden Conservatory.",
+  "people": [
+    {"name": "Ingrid Vos", "role": "professor (violin's custodian)", "suspect": false, "aliases": ["Ingrid", "Professor Vos", "Vos"]},
+    {"name": "Tomas Reyes", "role": "graduate student", "suspect": true, "aliases": ["Tomas", "Reyes"]},
+    {"name": "Mei Chen", "role": "accompanist", "suspect": true, "aliases": ["Mei", "Chen"]},
+    {"name": "Olu Adeyemi", "role": "night security guard", "suspect": true, "aliases": ["Olu", "Adeyemi"]},
+    {"name": "Hannah Brooks", "role": "piano tuner (contractor)", "suspect": true, "aliases": ["Hannah", "Brooks"]}
+  ],
+  "locations": [
+    {"name": "Instrument Vault", "aliases": ["the vault", "vault"]},
+    {"name": "East Door", "aliases": ["east door", "east entrance"], "entrance": true},
+    {"name": "Loading Dock", "aliases": ["loading dock", "the dock"], "entrance": true},
+    {"name": "Studio B", "aliases": ["studio b"]},
+    {"name": "Halden Conservatory", "aliases": ["the conservatory", "the school"]},
+    {"name": "Riverside Hall", "aliases": ["riverside hall"], "onsite": false}
+  ],
+  "scene": "Instrument Vault",
+  "window": {
+    "start": {"doc": "interview_vos", "quote": "I put the violin back in the vault at 5 PM and locked it."},
+    "end": {"doc": "brief", "quote": "At 2026-05-09 08:05, Professor Ingrid Vos reported that the Aldana violin was missing from the Instrument Vault."}
+  }
+}
