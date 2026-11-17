@@ -1,16 +1,65 @@
 {
   "culprit": "Tomas Reyes",
   "lies": [
-    {"person": "Tomas Reyes", "claim": "I was at Riverside Hall for the student concert from 8 PM until 11 PM.", "contradicted_by": ["access_log"]}
+    {
+      "person": "Tomas Reyes",
+      "claim": "I was at Riverside Hall for the student concert from 8 PM until 11 PM.",
+      "contradicted_by": [
+        "access_log"
+      ]
+    }
   ],
-  "honest": ["Mei Chen", "Olu Adeyemi", "Hannah Brooks"],
+  "honest": [
+    "Mei Chen",
+    "Olu Adeyemi",
+    "Hannah Brooks"
+  ],
   "speculation": [
-    {"speaker": "Mei Chen", "about": "Olu Adeyemi"},
-    {"speaker": "Hannah Brooks", "about": "Tomas Reyes"}
+    {
+      "speaker": "Mei Chen",
+      "about": "Olu Adeyemi"
+    },
+    {
+      "speaker": "Hannah Brooks",
+      "about": "Tomas Reyes"
+    }
   ],
   "opportunity": {
-    "at scene": ["Tomas Reyes"],
-    "on site": ["Olu Adeyemi", "Hannah Brooks"],
-    "no recorded presence": ["Mei Chen"]
-  }
+    "at scene": [
+      "Tomas Reyes"
+    ],
+    "on site": [
+      "Olu Adeyemi",
+      "Hannah Brooks"
+    ],
+    "no recorded presence": [
+      "Mei Chen"
+    ]
+  },
+  "motives": {
+    "Tomas Reyes": [
+      "gain",
+      "money"
+    ],
+    "Mei Chen": [],
+    "Olu Adeyemi": [],
+    "Hannah Brooks": []
+  },
+  "cctv_matches": [
+    {
+      "cctv": "cctv:L1",
+      "person": "Tomas Reyes"
+    },
+    {
+      "cctv": "cctv:L2",
+      "person": "Tomas Reyes"
+    }
+  ],
+  "connections": [
+    {
+      "suspect": "Tomas Reyes",
+      "party": "Dex Marlow",
+      "denied": true
+    }
+  ]
 }

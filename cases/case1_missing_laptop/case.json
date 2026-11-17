@@ -57,7 +57,8 @@
       "aliases": [
         "Alex",
         "Brandt"
-      ]
+      ],
+      "outside": true
     }
   ],
   "locations": [
@@ -116,5 +117,13 @@
       "doc": "case_brief",
       "quote": "At 2026-03-13 08:50, Daniel Okafor reported that the Brightwave \"Aurora\" prototype laptop was missing from the Design Lab."
     }
+  },
+  "item": {
+    "name": "Aurora prototype laptop",
+    "aliases": [
+      "prototype",
+      "laptop",
+      "Aurora"
+    ]
   }
 }

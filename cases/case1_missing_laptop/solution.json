@@ -73,5 +73,33 @@
     "no recorded presence": [
       "Priya Nair"
     ]
-  }
+  },
+  "motives": {
+    "Marcus Hale": [
+      "gain"
+    ],
+    "Sam Whitfield": [
+      "need",
+      "conflict"
+    ],
+    "Priya Nair": [],
+    "Lena Torres": []
+  },
+  "cctv_matches": [
+    {
+      "cctv": "cctv_summary:L1",
+      "person": "Marcus Hale"
+    },
+    {
+      "cctv": "cctv_summary:L2",
+      "person": "Marcus Hale"
+    }
+  ],
+  "connections": [
+    {
+      "suspect": "Marcus Hale",
+      "party": "Alex Brandt",
+      "denied": true
+    }
+  ]
 }

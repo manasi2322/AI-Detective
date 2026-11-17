@@ -11,18 +11,18 @@ found in the evidence is rejected.
 |---|---|---|---|
 | 1 | Evidence foundation: Case 1, extraction, search, timeline, grounding | Done (~20%) | 22 |
 | 2 | Alibi checking, speculation flags, opportunity, holdout case | Done (~35%) | 28 |
-| 3 | Motive analysis, LLM investigator that weighs findings, confidence levels | Next | |
-| 4 | Cases 2 and 3 (twisted / impossible), follow-up questions, new-evidence reassessment | Planned | |
+| 3 | Disputed records, motives, links, investigator with a labelled reasoning log | Done (~60%) | 17 |
+| 4 | Cases 2 and 3 (twisted / impossible), follow-up questions, new-evidence reassessment | Next | |
 | 5 | Final case reports, evaluation harness across all cases | Planned | |
 
-**Total: 50 automated tests, all passing.**
+**Total: 67 automated tests, all passing.**
 
 ## Quick start
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install pytest
-pytest -q                                   # 50 passed
+pytest -q                                   # 67 passed
 ```
 
 ---
@@ -168,22 +168,127 @@ Marcus Hale (suspect): alibi BROKEN
 | `test_holdout.py` (5) | Same checks on the holdout case against its own answer key |
 | `test_cli.py` (1) | `analyze` command reports the contradiction |
 
-### Not yet covered
+### Left for milestone 3 (now done)
 
 - Lies that movement records can't test, such as Marcus's "I've never talked to anyone there"
-  vs. his recovered chat with a NovaForge recruiter. This belongs with motive analysis in
-  milestone 3.
-- Unidentified CCTV figures (the grey hoodie) are deliberately not matched to anyone.
+  vs. his recovered chat with a NovaForge recruiter.
+- Unidentified CCTV figures (the grey hoodie). Milestone 2 doesn't match them to anyone;
+  milestone 3 does, labelled as an assumption.
+
+---
+
+## Milestone 3: motives, links and the investigator (~60%)
+
+The system now weighs everything it has found. For each suspect it builds one reasoning log
+in which every step is labelled, weighted and backed by exact quotes, then names the most likely
+suspect with a confidence level.
+
+### What was built
+
+- **Disputed records** (`records.py`). A badge or login proves the card was used, not who used
+  it. If CCTV shows the same person somewhere else within 5 minutes of a badge swipe, the swipe
+  is marked as disputed and left out of the alibi and opportunity checks.
+- **Motives** (`motive.py`). Statements that give someone a reason to act: **gain** (an offer
+  or reward for the item), **intent** (a stated plan to take it), **money** trouble, **conflict**
+  (an argument or refusal) and **need** (the person says they want the item). Each motive records
+  who it belongs to and whether they said it themselves or someone else reported it. Guesses
+  ("seemed stressed about money") are never treated as motives.
+- **Links** (`links.py`).
+  - *CCTV matches:* an unnamed person on camera is matched to someone only if exactly one person
+    has a record within 5 minutes. A match is always labelled an **assumption**. A later line
+    that refers back ("the same grey-hoodie figure") inherits the match.
+  - *Hidden connections:* a suspect and an outside party who appear in the same chat or email
+    are connected. If the suspect denied contact in an interview, the denial is shown next to
+    the messages that contradict it.
+- **Investigator** (`investigator.py`). One reasoning log per suspect. Every step has:
+  - a **label**:
+    - `FACT`: decided by records (badge log, login log, CCTV, brief);
+    - `CLAIM`: rests on what someone said or wrote;
+    - `ASSUMPTION`: an inference, such as a CCTV match or "no record means absent";
+    - `SPECULATION`: a guess, which always weighs 0;
+  - a **weight**, where positive points toward the suspect and negative away;
+  - **exact quotes** from the documents.
+
+  Scores are the sum of the weights. All weights are in one table (`WEIGHTS`) so the scoring
+  policy is easy to review. A confidence level (high / medium / low) comes from the lead over the
+  runner-up and from whether a record-backed fact points to the top suspect.
+- **Optional LLM investigator.** Claude proposes extra steps, which pass through the same
+  `validate` rules as the rules engine: quotes must be found word for word, a `FACT` may only
+  cite records, `SPECULATION` must weigh 0 and weights stay within ±3. Anything else is rejected
+  with the reason.
+
+### Results on Case 1
+
+| Suspect | Score | Main reasons |
+|---|---|---|
+| **Marcus Hale** | **+11.5** | Alibi contradicted by badge log (+3); at the scene and never said so (+2); job offer conditional on the prototype (+1.5); grey-hoodie CCTV figure matched by timing (+1, +1, assumptions); chat with NovaForge recruiter (+1) that he denied (+2) |
+| Sam Whitfield | −0.5 | Alibi confirmed (−1) and consistent (−0.5); asked to borrow the laptop and was refused (+0.5 need, +0.5 conflict) |
+| Lena Torres | −2.5 | Arrival, lab visit and exit all confirmed (−3); at the scene but said so and records agree (+0.5) |
+| Priya Nair | −3.0 | Left before the window (−1); dinner consistent (−0.5); no recorded presence (−1.5, assumption) |
+
+Most likely: **Marcus Hale**, confidence **high** (12-point lead, backed by record facts).
+On the holdout case Tomas Reyes scores +12.5 and the other three are negative.
+
+Sam does get a motive: he asked to borrow the laptop and was refused. That is real evidence
+(the answer key lists it as a red-herring motive), so the system reports it rather than hiding
+it, and the alibi and opportunity evidence outweigh it.
+
+### Try it
+
+```bash
+python -m detective investigate cases/case1_missing_laptop                       # full reasoning log + conclusion
+python -m detective investigate cases/case1_missing_laptop --person "Marcus Hale"
+python -m detective motives     cases/case1_missing_laptop
+python -m detective links       cases/case1_missing_laptop                       # CCTV matches, connections, disputes
+python -m detective links       tests/fixtures/disputed_badge                    # a badge disputed by CCTV
+python -m detective investigate cases/case1_missing_laptop --llm                 # add Claude's steps (needs credentials)
+```
+
+Example reasoning steps:
+
+```
+Marcus Hale: score +11.5
+  +3.0  FACT        alibi: Alibi contradicted: Claims to be off the premises from 18:00 to 03-13 06:00, but records put them at Main Entrance at 19:41 [badge_log:L6], at Design Lab at 19:44 [badge_log:L7].
+          tested: "I didn't come back that night."  [interview_marcus:L2]
+          cites:  "2026-03-12 19:41 | Marcus Hale | Main Entrance | ENTRY"  [badge_log:L6]
+  +1.0  ASSUMPTION  link: Unnamed person on CCTV matched by timing: Only Marcus Hale has a record within 5 min of this sighting (badge_log:L6, badge_log:L7). Assumed, not identified: the face is not described.
+  +0.0  SPECULATION speculation: Priya Nair impression: "seemed". Not evidence; weighs nothing.
+
+== CONCLUSION ==
+  ranking: Marcus Hale +11.5, Sam Whitfield -0.5, Lena Torres -2.5, Priya Nair -3.0
+  most likely: Marcus Hale  (confidence: high; Marcus Hale leads by 12.0 points; at least one record-backed fact points to them.)
+```
+
+### Tests (17)
+
+| File | What it checks |
+|---|---|
+| `test_records.py` (2) | Case 1 has no disputed records; a badge disputed by CCTV is left out of alibi and opportunity |
+| `test_motive.py` (4) | Motive types match both answer keys; the culprit's motive is cited and reported by someone else; guesses are never motives; the culprit has the strongest motive |
+| `test_links.py` (3) | CCTV matches are labelled assumptions and match both answer keys; they cite the records they rely on; hidden connections and denials are found |
+| `test_investigator.py` (7) | Every step is labelled, cited and grounded; facts cite only records; speculation never changes a score; the evidence favours the culprit in both cases (lead of 5+ points, everyone else negative); a fact citing a statement is rejected; LLM steps follow the same rules |
+| `test_cli.py` (+1) | `investigate`, `motives` and `links` commands |
+
+New fixtures: `tests/fixtures/disputed_badge` (Nora's badge opens the Server Room while CCTV
+shows her in the canteen), plus a recovered chat with a buyer and a denial added to the holdout.
+
+### Not yet covered
+
+- The weights are a hand-set policy, not learned. They are tested on two cases, both written by
+  the same author as the rules, so Cases 2 and 3 will be the real test.
+- The LLM investigator is only tested offline with a fake. It has not been run against Claude
+  in this repo's tests.
 
 ---
 
 ## Architecture
 
 ```
-cases/<case>/case.json        cast list, places (on/off site, entrances), scene, quoted window bounds
+cases/<case>/case.json        cast list (suspects, outside parties), places (on/off site, entrances), scene, item, quoted window bounds
 cases/<case>/documents/*.txt  evidence, each with front matter (id, type, date, author)
 cases/<case>/solution.json    answer key: read only by tests, never by the pipeline
 tests/fixtures/holdout_violin second case with its own answer key, used only by tests
+tests/fixtures/disputed_badge small case where CCTV disputes a badge swipe
 
 detective/
   # Milestone 1
@@ -194,7 +299,7 @@ detective/
   entities.py          roster/alias matching for people and places
   events.py            rule-based timed-event extraction
   llm_extract.py       LLM proposals -> validated Events or Rejections
-  anthropic_backend.py Claude call with structured output (lazy import)
+  anthropic_backend.py Claude calls with structured output: event extraction, investigator steps (lazy import)
   store.py             BM25 evidence search
   timeline.py          ordering, record/claim split, per-person views, rendering
   # Milestone 2
@@ -203,6 +308,11 @@ detective/
   alibi.py             claim vs. records -> supported / consistent / unverified / contradicted
   speculation.py       guesses and impressions, flagged and kept out of the evidence
   opportunity.py       evidence-anchored crime window + at-scene / on-site / none per suspect
+  # Milestone 3
+  records.py           badge/login records disputed by CCTV, kept out of presence
+  motive.py            gain / intent / money / conflict / need, with owner and who reported it
+  links.py             CCTV matches by timing (assumptions), hidden connections + denials
+  investigator.py      labelled, weighted, cited reasoning log; scores; confidence; LLM step validation
   # Shared
   pipeline.py          wires it together; final check that every quote it outputs is grounded
   cli.py               command-line explorer
@@ -218,4 +328,10 @@ detective/
   movement logs only, so a witness can't place themselves (or anyone else) at the scene.
 - **Two levels of "fine".** `SUPPORTED` needs a confirming record; `CONSISTENT` only means
   nothing conflicts. An alibi nobody can check is never reported as confirmed.
+- **A badge is not a person.** Card and login records can be disputed by CCTV; a camera can't
+  be disputed by a card.
+- **One set of rules for rules and LLM.** Every reasoning step, whoever wrote it, goes through
+  the same `validate` check before it can change a score.
+- **Speculation is shown, never counted.** Guesses appear in the log so the investigator can
+  see them, with weight 0.
 - **The model never sees the answer key.** `solution.json` is used only for evaluation.

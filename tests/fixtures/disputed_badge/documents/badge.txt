@@ -1,0 +1,11 @@
+---
+id: badge
+type: badge_log
+title: Badge log
+date: 2026-06-01
+---
+2026-06-01 20:25 | Nora Quint | Lobby | ENTRY
+2026-06-01 20:30 | Felix Hart | Lobby | ENTRY
+2026-06-01 21:03 | Nora Quint | Server Room | ENTRY
+2026-06-01 22:30 | Nora Quint | Lobby | EXIT
+2026-06-01 22:40 | Felix Hart | Lobby | EXIT

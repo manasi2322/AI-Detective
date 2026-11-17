@@ -1,0 +1,7 @@
+---
+id: cctv
+type: cctv
+title: Camera notes
+date: 2026-06-01
+---
+2026-06-01 21:01 | Canteen camera | Nora Quint is eating at a table in the canteen.

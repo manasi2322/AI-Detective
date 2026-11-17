@@ -7,6 +7,9 @@
   speculation <case>                 guesses and impressions, flagged so they are not used as evidence
   opportunity <case>                 who records put at the scene during the crime window
   analyze   <case>                   alibis + speculation + opportunity
+  motives   <case>                   reasons to act, with who said them
+  links     <case>                   CCTV matches (assumptions), hidden connections, disputed badges
+  investigate <case> [--llm]         reasoning log per suspect, scores, most likely suspect
   add --llm to any command to also run Claude extraction (needs the anthropic SDK + credentials).
 """
 
@@ -23,7 +26,7 @@ from .timeline import Timeline
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="detective", description="AI Detective - evidence explorer")
-    ap.add_argument("command", choices=["timeline", "search", "entities", "alibis", "speculation", "opportunity", "analyze"])
+    ap.add_argument("command", choices=["timeline", "search", "entities", "alibis", "speculation", "opportunity", "analyze", "motives", "links", "investigate"])
     ap.add_argument("case_dir")
     ap.add_argument("query", nargs="?", default="")
     ap.add_argument("--person")
@@ -35,12 +38,14 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     case = load_case(args.case_dir)
-    propose = None
+    propose = investigator = None
     if args.llm:
-        from .anthropic_backend import make_claude_proposer
+        from .anthropic_backend import make_claude_investigator, make_claude_proposer
 
         propose = make_claude_proposer()
-    inv = investigate(case, propose)
+        if args.command == "investigate":
+            investigator = make_claude_investigator()
+    inv = investigate(case, propose, investigator)
     print(f"# {case.title}  ({case.difficulty}, {len(case.documents)} documents)\n")
 
     if args.command == "timeline":
@@ -65,6 +70,12 @@ def main(argv: list[str] | None = None) -> int:
             print(render_speculation(inv))
         if args.command in ("opportunity", "analyze"):
             print(render_opportunity(inv))
+    elif args.command == "motives":
+        print(render_motives(inv))
+    elif args.command == "links":
+        print(render_links(inv))
+    elif args.command == "investigate":
+        print(render_investigation(inv, args.person))
     else:
         for name, mentions in inv.index.mentions.items():
             if not mentions:
@@ -122,6 +133,68 @@ def render_opportunity(inv) -> str:
             out.append(f"       record: \"{q.text}\"  [{q.cite()}]")
         for a in o.assumptions:
             out.append(f"       assumes: {a}")
+    return "\n".join(out) + "\n"
+
+
+def render_motives(inv) -> str:
+    out = ["== MOTIVES: reasons to act (guesses are excluded) =="]
+    for m in inv.motives:
+        out.append(f"  {m.person}: {m.describe()}")
+        out.append(f"       \"{m.quote.text}\"  [{m.quote.cite()}]")
+    if not inv.motives:
+        out.append("  (none)")
+    return "\n".join(out) + "\n"
+
+
+def render_links(inv) -> str:
+    out = ["== CCTV MATCHES (assumptions, not identifications) =="]
+    for m in inv.cctv_matches:
+        out.append(f"  [{m.cctv.cite()}] -> {m.person or 'no match'}  ({m.label.upper()})")
+        out.append(f"       \"{m.cctv.text}\"")
+        out.append(f"       why: {m.explanation()}")
+    if not inv.cctv_matches:
+        out.append("  (no unnamed people on CCTV)")
+    out.append("\n== HIDDEN CONNECTIONS with outside parties ==")
+    for c in inv.connections:
+        out.append(f"  {c.suspect} <-> {c.party}: {c.explanation()}")
+        for q in c.messages:
+            out.append(f"       message: \"{q.text}\"  [{q.cite()}]")
+        if c.denial:
+            out.append(f"       denial:  \"{c.denial.text}\"  [{c.denial.cite()}]")
+    if not inv.connections:
+        out.append("  (none)")
+    out.append("\n== DISPUTED RECORDS (left out of alibi and opportunity checks) ==")
+    for d in inv.disputes:
+        out.append(f"  {d.explanation}")
+    if not inv.disputes:
+        out.append("  (none: every badge/login record agrees with CCTV)")
+    return "\n".join(out) + "\n"
+
+
+def render_investigation(inv, person: str | None = None) -> str:
+    a = inv.assessment
+    out = ["== INVESTIGATION: reasoning log per suspect ==",
+           "   labels: FACT (records) / CLAIM (statements) / ASSUMPTION (inference) / SPECULATION (weighs 0)"]
+    for log in a.ranking():
+        if person and log.suspect != person:
+            continue
+        out.append(f"\n{log.suspect}: score {log.score:+.1f}")
+        for s in log.steps:
+            src = " [llm]" if s.source == "llm" else ""
+            out.append(f"  {s.weight:+.1f}  {s.label.value.upper():<11} {s.kind}{src}: {s.text}")
+            if s.tested:
+                out.append(f"          tested: \"{s.tested.text}\"  [{s.tested.cite()}]")
+            for q in s.evidence:
+                if q != s.tested:
+                    out.append(f"          cites:  \"{q.text}\"  [{q.cite()}]")
+    level, why = a.confidence()
+    out.append("\n== CONCLUSION ==")
+    out.append("  ranking: " + ", ".join(f"{l.suspect} {l.score:+.1f}" for l in a.ranking()))
+    out.append(f"  most likely: {a.most_likely}  (confidence: {level}; {why})")
+    if a.rejections:
+        out.append(f"\n{len(a.rejections)} LLM steps rejected:")
+        for r in a.rejections:
+            out.append(f"  - {r.reason}: {r.item.get('reasoning', '')!r}")
     return "\n".join(out) + "\n"
 
 

@@ -57,7 +57,7 @@ def load_case(case_dir: str | Path) -> Case:
         incident_date=date.fromisoformat(spec["incident_date"]),
         summary=spec.get("summary", ""),
         people=[
-            Person(p["name"], p.get("role", ""), bool(p.get("suspect")), tuple(p.get("aliases", ())))
+            Person(p["name"], p.get("role", ""), bool(p.get("suspect")), tuple(p.get("aliases", ())), bool(p.get("outside")))
             for p in spec["people"]
         ],
         locations=[
@@ -68,6 +68,7 @@ def load_case(case_dir: str | Path) -> Case:
         root=str(root),
         scene=spec.get("scene"),
         window=spec.get("window"),
+        item=tuple([spec["item"]["name"], *spec["item"].get("aliases", ())]) if "item" in spec else (),
     )
 
 

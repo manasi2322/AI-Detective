@@ -10,3 +10,5 @@ A: I was at Riverside Hall for the student concert from 8 PM until 11 PM.
 A: After the concert I went back to my flat.
 Q: When were you last in the vault?
 A: I haven't been near the vault since Thursday's lesson.
+Q: Do you know Dex Marlow?
+A: No. I don't know anyone who deals in instruments.

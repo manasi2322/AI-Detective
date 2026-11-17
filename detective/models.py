@@ -18,9 +18,11 @@ class EvidenceKind(str, Enum):
     CLAIM = "claim"
 
 
-RECORD_TYPES = frozenset({"badge_log", "cctv", "brief"})
+RECORD_TYPES = frozenset({"badge_log", "login_log", "cctv", "brief"})
 # Records that show people moving around the premises (the brief is a record, but not a movement log).
-MOVEMENT_TYPES = frozenset({"badge_log", "cctv"})
+MOVEMENT_TYPES = frozenset({"badge_log", "login_log", "cctv"})
+# Records made by a card or an account: they prove the credential was used, not who used it.
+CREDENTIAL_TYPES = frozenset({"badge_log", "login_log"})
 
 
 @dataclass(frozen=True)
@@ -58,6 +60,7 @@ class Person:
     role: str
     suspect: bool
     aliases: tuple[str, ...] = ()
+    outside: bool = False  # an outside party (recruiter, buyer, ...), not part of the organisation
 
 
 @dataclass(frozen=True)
@@ -81,6 +84,7 @@ class Case:
     root: str
     scene: str | None = None  # where the incident happened
     window: dict | None = None  # {"start": {"doc", "quote"}, "end": {...}}: bounds anchored to evidence
+    item: tuple[str, ...] = ()  # names for the missing/stolen item: "laptop", "prototype", ...
 
     def location(self, name: str | None) -> Location | None:
         return next((l for l in self.locations if l.name == name), None)

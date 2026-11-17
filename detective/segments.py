@@ -9,7 +9,7 @@ from .grounding import make_quote
 from .models import Document, Quote
 
 # One segment per line for structured logs and chats: the timestamp lives at the start of the line.
-LINE_TYPES = frozenset({"badge_log", "cctv", "chat"})
+LINE_TYPES = frozenset({"badge_log", "login_log", "cctv", "chat"})
 
 _CHAT_LINE = re.compile(r"^\[[^\]]+\]\s+(?P<speaker>[^:]+):")
 _SENTENCE_END = re.compile(r"(?<=[.!?])\s+(?=[A-Z\"'])")

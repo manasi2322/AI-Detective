@@ -1,0 +1,9 @@
+---
+id: interview_nora
+type: interview
+title: Interview with Nora Quint
+date: 2026-06-01
+author: Nora Quint
+---
+Q: Where were you at nine?
+A: I was in the canteen from 8:45 PM to 9:30 PM. I left my badge on my desk.

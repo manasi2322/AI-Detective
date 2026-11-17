@@ -1,4 +1,4 @@
-"""Claude-backed proposer for LLMEventExtractor.
+"""Claude-backed proposers: events for LLMEventExtractor, reasoning steps for the investigator.
 
 Requires `pip install anthropic pydantic` and credentials (ANTHROPIC_API_KEY or `ant auth login`).
 Imported lazily so the rest of the system and the test suite run without network access.
@@ -62,5 +62,69 @@ def make_claude_proposer(model: str = MODEL):
         if response.stop_reason == "refusal" or response.parsed_output is None:
             return []
         return [e.model_dump() for e in response.parsed_output.events]
+
+    return propose
+
+
+INVESTIGATOR_SYSTEM = """You review a detective case and add reasoning steps the rules engine may have missed.
+
+You get every evidence document and the current reasoning log. Return extra steps only where
+the documents support them. Each step:
+- `suspect`: one of the listed suspects.
+- `label`: "fact" (only when every quote comes from a record document: badge_log, login_log,
+  cctv, brief), "claim" (rests on what someone said or wrote), "assumption" (your inference),
+  or "speculation" (a guess; weight must be 0).
+- `weight`: -3 to 3. Positive points toward the suspect, negative away.
+- `quotes`: each quote copied character-for-character from one document, with its document id.
+- `reasoning`: one or two sentences.
+Do not repeat steps already in the log. Never invent evidence; a step whose quote is not in the
+documents is discarded."""
+
+
+def make_claude_investigator(model: str = MODEL):
+    import anthropic
+    from pydantic import BaseModel
+
+    class QuoteRef(BaseModel):
+        doc: str
+        text: str
+
+    class LLMStep(BaseModel):
+        suspect: str
+        label: str
+        weight: float
+        quotes: list[QuoteRef]
+        reasoning: str
+
+    class LLMSteps(BaseModel):
+        steps: list[LLMStep]
+
+    client = anthropic.Anthropic()
+
+    def propose(case, assessment) -> list[dict]:
+        docs = "\n\n".join(
+            f"<document id=\"{d.id}\" type=\"{d.type}\" date=\"{d.date}\">\n{d.body}</document>"
+            for d in case.documents.values()
+        )
+        log = "\n".join(
+            f"- {s.suspect} | {s.label.value} | {s.weight:+.1f} | {s.text}"
+            for l in assessment.logs.values() for s in l.steps
+        )
+        prompt = (
+            f"Case: {case.title}\nSuspects: {', '.join(p.name for p in case.suspects)}\n\n{docs}\n\n"
+            f"<current_log>\n{log}\n</current_log>"
+        )
+        response = client.messages.parse(
+            model=model,
+            max_tokens=16000,
+            system=INVESTIGATOR_SYSTEM,
+            messages=[{"role": "user", "content": prompt}],
+            output_format=LLMSteps,
+            extra_headers={"anthropic-beta": "server-side-fallback-2026-07-01"},
+            extra_body={"fallbacks": "default"},
+        )
+        if response.stop_reason == "refusal" or response.parsed_output is None:
+            return []
+        return [s.model_dump() for s in response.parsed_output.steps]
 
     return propose

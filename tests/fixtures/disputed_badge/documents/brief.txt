@@ -1,0 +1,7 @@
+---
+id: brief
+type: brief
+title: Brief
+date: 2026-06-01
+---
+The drive was last checked at 2026-06-01 20:00. It was reported missing at 2026-06-01 23:00.

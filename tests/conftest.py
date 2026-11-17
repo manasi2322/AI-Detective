@@ -39,3 +39,11 @@ def holdout_solution():
 @pytest.fixture(scope="session")
 def inv_holdout(holdout):
     return investigate(holdout)
+
+
+DISPUTED = Path(__file__).resolve().parent / "fixtures" / "disputed_badge"
+
+
+@pytest.fixture(scope="session")
+def inv_disputed():
+    return investigate(load_case(DISPUTED))

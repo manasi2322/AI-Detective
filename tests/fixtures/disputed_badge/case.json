@@ -1,0 +1,21 @@
+{
+  "id": "disputed_badge",
+  "title": "Borrowed Badge (test fixture)",
+  "difficulty": "fixture",
+  "incident_date": "2026-06-01",
+  "summary": "A drive went missing from the Server Room. Nora's badge opened the door, but the camera saw her elsewhere.",
+  "people": [
+    {"name": "Nora Quint", "role": "analyst", "suspect": true, "aliases": ["Nora"]},
+    {"name": "Felix Hart", "role": "technician", "suspect": true, "aliases": ["Felix"]}
+  ],
+  "locations": [
+    {"name": "Server Room", "aliases": ["server room"]},
+    {"name": "Canteen", "aliases": ["canteen"]},
+    {"name": "Lobby", "aliases": ["lobby"], "entrance": true}
+  ],
+  "scene": "Server Room",
+  "window": {
+    "start": {"doc": "brief", "quote": "The drive was last checked at 2026-06-01 20:00."},
+    "end": {"doc": "brief", "quote": "It was reported missing at 2026-06-01 23:00."}
+  }
+}

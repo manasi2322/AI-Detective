@@ -1,0 +1,9 @@
+---
+id: chat_tomas_dex
+type: chat
+title: Messages recovered from Tomas Reyes's phone
+date: 2026-05-06
+---
+[2026-05-06 23:10] Dex Marlow: My buyer will pay you forty thousand for the Aldana violin. Cash.
+[2026-05-07 00:02] Tomas Reyes: I need the money before my visa fee is due. Friday night, late.
+[2026-05-07 00:05] Dex Marlow: Loading dock. Don't use the front.
