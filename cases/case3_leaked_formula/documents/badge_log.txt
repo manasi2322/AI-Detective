@@ -1,0 +1,12 @@
+---
+id: badge_log
+type: badge_log
+title: Badge reader export - Kestrel Labs
+date: 2026-10-07
+---
+2026-10-07 18:30 | Paul Ortega | Main Door | EXIT
+2026-10-07 19:05 | Zara Quinn | Main Door | EXIT
+2026-10-07 21:40 | Noah Fisk | Main Door | ENTRY
+2026-10-07 22:09 | Noah Fisk | Lab Wing | ENTRY
+2026-10-07 22:18 | Iris Kemp | Main Door | EXIT
+2026-10-07 22:47 | Noah Fisk | Main Door | EXIT

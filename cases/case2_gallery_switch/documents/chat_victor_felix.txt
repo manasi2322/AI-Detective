@@ -1,0 +1,8 @@
+---
+id: chat_victor_felix
+type: chat
+title: Messages recovered from Victor Lane's phone
+date: 2026-09-15
+---
+[2026-09-15 22:40] Felix Moreau: I will pay you 200,000 for the real Harbour at Dusk. Leave a good copy in its place.
+[2026-09-15 22:52] Victor Lane: The copy is ready. Friday night, after the guard's rounds.

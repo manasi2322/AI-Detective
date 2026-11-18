@@ -1,0 +1,13 @@
+---
+id: interview_omar
+type: interview
+title: Interview with Omar Haddad (night guard)
+date: 2026-09-18
+author: Omar Haddad
+---
+Q: When did your shift start?
+A: My shift started at 8 PM.
+Q: Where were you around nine?
+A: I was at the front desk from 9 PM to 9:30 PM watching the monitors.
+Q: Your badge opened the Vault Room at 9:10 PM. Can you explain that?
+A: I never went into the vault that night. My badge was in the front desk drawer while I did my rounds.

@@ -32,3 +32,8 @@ def test_full_timestamps_override_document_date():
     times = find_times("2026-03-13 08:40 | Daniel Okafor | Main Entrance | ENTRY", D)
     assert len(times) == 1
     assert times[0].time == datetime(2026, 3, 13, 8, 40) and times[0].explicit_date
+
+
+def test_midnight_ends_the_day():
+    span = time_span("I was at Celia's flat from 8 PM until midnight.", date(2026, 9, 18))
+    assert span.start == datetime(2026, 9, 18, 20, 0) and span.end == datetime(2026, 9, 19, 0, 0)

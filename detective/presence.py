@@ -106,9 +106,11 @@ class Presence:
                 stays.append(Stay(person, None, m.time, None, m.quote))
         if open_ is not None:
             stays.append(Stay(person, open_.time, None, open_.quote, None))
-        # Seen inside (e.g. the Design Lab reader) outside any known stay: on site at that moment.
+        # Seen inside (e.g. the Design Lab reader), or at a door with no direction (a phone joining the
+        # Wi-Fi), outside any known stay: on site at that moment.
         for m in moves:
-            if not self._is_entrance(m.location) and not any(s.covers(m.time) for s in stays):
+            undirected = not self._is_entrance(m.location) or m.direction is None
+            if undirected and not any(s.covers(m.time) for s in stays):
                 stays.append(Stay(person, m.time, m.time, m.quote, m.quote))
         return sorted(stays, key=lambda s: s.start or s.end)
 

@@ -1,0 +1,13 @@
+---
+id: interview_noah
+type: interview
+title: Interview with Noah Fisk (lab technician)
+date: 2026-10-07
+author: Noah Fisk
+---
+Q: Why were you in the building that night?
+A: I came back at 9:40 PM to restart the centrifuge. I was in the Lab Wing from 10:05 PM to 10:40 PM. I left at 10:45 PM.
+Q: Did you see anyone at Lab Terminal 3?
+A: No, the terminal was idle the whole time.
+Q: Do you know anyone at Veltrix?
+A: No. I've never spoken to anyone at Veltrix.

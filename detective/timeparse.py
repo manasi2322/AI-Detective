@@ -21,6 +21,7 @@ _HEDGE = re.compile(
     r"shortly (before|after)|sometime)\s*$",
     re.IGNORECASE,
 )
+_NAMED = re.compile(r"\b(midnight|noon|midday)\b", re.IGNORECASE)
 _NEXT_DAY = re.compile(r"\b(next (morning|day)|tomorrow)\b", re.IGNORECASE)
 _WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 # "on Friday at 5 PM" -> that weekday on/after the document date. Possessives ("Friday's demo") don't count.
@@ -71,6 +72,13 @@ def find_times(text: str, base_date: date) -> list[TimeMention]:
         if h > 23 or mi > 59:
             continue
         dt = datetime.combine(day, datetime.min.time()).replace(hour=h, minute=mi)
+        found.append(TimeMention(dt, m.start(), m.end(), _hedged(text, m.start()), False))
+
+    for m in _NAMED.finditer(text):
+        if m.group(1).lower() == "midnight":  # the midnight that ends the day: 00:00 the next day
+            dt = datetime.combine(day + timedelta(days=1), datetime.min.time())
+        else:
+            dt = datetime.combine(day, datetime.min.time()).replace(hour=12)
         found.append(TimeMention(dt, m.start(), m.end(), _hedged(text, m.start()), False))
 
     return sorted(found, key=lambda t: t.start)

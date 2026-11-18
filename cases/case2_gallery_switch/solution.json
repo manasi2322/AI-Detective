@@ -1,0 +1,29 @@
+{
+  "culprit": "Victor Lane",
+  "motive": "A private collector, Felix Moreau, offered 200,000 for the real painting if a copy was left in its place.",
+  "method": "Victor came back through the unbadged Side Door at about 21:05 (his phone joined the guest Wi-Fi at 21:04), used the guard's badge, which was left in the front-desk drawer, to open the Vault Room at 21:10, swapped the painting for his copy and left by the Side Door at 21:31.",
+  "lies": [
+    {"person": "Victor Lane", "claim": "I was at Celia's flat from 8 PM until midnight, watching the match.", "contradicted_by": ["wifi_log"]},
+    {"person": "Celia Ward", "claim": "Victor was with me at my flat from 8 PM until midnight.", "contradicted_by": ["wifi_log"]},
+    {"person": "Victor Lane", "claim": "I've never spoken to him.", "contradicted_by": ["chat_victor_felix"]}
+  ],
+  "honest": ["Omar Haddad", "Lucy Tran", "Ben Price"],
+  "red_herrings": [
+    {"person": "Omar Haddad", "why": "His badge opened the Vault Room at 21:10, but CCTV shows him at the front desk at 21:13; he also complains about pay, and Lucy guesses it was him."}
+  ],
+  "disputed": ["badge_log:L7"],
+  "statement_conflicts": [
+    {"person": "Victor Lane", "backed": "Ben Price"}
+  ],
+  "speculation": [{"speaker": "Lucy Tran", "about": "Omar Haddad"}],
+  "motives": {"Victor Lane": ["gain"], "Omar Haddad": ["money"], "Lucy Tran": [], "Ben Price": []},
+  "cctv_matches": [
+    {"cctv": "cctv:L1", "person": "Victor Lane"},
+    {"cctv": "cctv:L3", "person": "Victor Lane"}
+  ],
+  "connections": [{"suspect": "Victor Lane", "party": "Felix Moreau", "denied": true}],
+  "opportunity": {
+    "on site": ["Victor Lane", "Omar Haddad", "Ben Price"],
+    "no recorded presence": ["Lucy Tran"]
+  }
+}

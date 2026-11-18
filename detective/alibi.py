@@ -41,8 +41,15 @@ class AlibiCheck:
 
 @dataclass
 class Alibi:
+    """A person's account of themselves (plus what friends vouch), each part checked against records.
+
+    `sightings` are other people's reports of seeing this person; they are checked the same way
+    but are not part of the alibi.
+    """
+
     person: str
     checks: list[AlibiCheck]
+    sightings: list[AlibiCheck] = field(default_factory=list)
 
     @property
     def status(self) -> str:
@@ -129,10 +136,11 @@ class AlibiChecker:
                               f"but {detail}.")
         state, why = self.presence.state_at(c.person, a)
         if state == "off site":
+            vouch = f" Only {c.reported_by}'s word says so, and a friend's word is not a record." if c.reported_by else ""
             return AlibiCheck(c, Verdict.CONSISTENT, why,
                               f"No record places {c.person} on the premises during the claimed time "
                               f"(last seen leaving: {', '.join(q.cite() for q in why)}). "
-                              f"The records cannot confirm they were {where}.",
+                              f"The records cannot confirm they were {where}.{vouch}",
                               [ASSUME_COMPLETE])
         return AlibiCheck(c, Verdict.UNVERIFIED, [],
                           f"No records of {c.person} around that time.", [ASSUME_COMPLETE])
@@ -159,5 +167,6 @@ def check_alibis(case: Case, claims: list[Claim], presence: Presence) -> dict[st
     checker = AlibiChecker(case, presence)
     alibis = {p.name: Alibi(p.name, []) for p in case.people}
     for claim in claims:
-        alibis[claim.person].checks.append(checker.check(claim))
+        target = alibis[claim.person].sightings if claim.kind == "sighting" else alibis[claim.person].checks
+        target.append(checker.check(claim))
     return alibis

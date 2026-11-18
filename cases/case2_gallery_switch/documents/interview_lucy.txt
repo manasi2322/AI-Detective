@@ -1,0 +1,11 @@
+---
+id: interview_lucy
+type: interview
+title: Interview with Lucy Tran (curator)
+date: 2026-09-18
+author: Lucy Tran
+---
+Q: When did you leave?
+A: I left at about 5:45 PM.
+Q: Who do you think did it?
+A: It was probably Omar. His badge opened the vault room, after all.

@@ -1,0 +1,11 @@
+---
+id: interview_ben
+type: interview
+title: Interview with Ben Price (night cleaner)
+date: 2026-09-18
+author: Ben Price
+---
+Q: When did you work on Friday?
+A: I started my shift at 8:30 PM. I left at 10 PM.
+Q: Did you see anyone?
+A: Around 9:05 PM I saw Victor near the side door. I thought he had come back for his tools.

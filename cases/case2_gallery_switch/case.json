@@ -1,0 +1,30 @@
+{
+  "id": "case2_gallery_switch",
+  "title": "The Gallery Switch",
+  "difficulty": "twisted",
+  "incident_date": "2026-09-18",
+  "summary": "Overnight, the painting \"Harbour at Dusk\" in the Ellis Gallery's Vault Room was replaced with a forgery.",
+  "people": [
+    {"name": "Margot Ellis", "role": "gallery director (owner)", "suspect": false, "aliases": ["Margot", "Ellis"]},
+    {"name": "Victor Lane", "role": "art restorer", "suspect": true, "aliases": ["Victor", "Lane"]},
+    {"name": "Omar Haddad", "role": "night guard", "suspect": true, "aliases": ["Omar", "Haddad"]},
+    {"name": "Lucy Tran", "role": "curator", "suspect": true, "aliases": ["Lucy", "Tran"]},
+    {"name": "Ben Price", "role": "night cleaner", "suspect": true, "aliases": ["Ben", "Price"]},
+    {"name": "Celia Ward", "role": "Victor's friend", "suspect": false, "aliases": ["Celia", "Ward"]},
+    {"name": "Felix Moreau", "role": "private collector (external)", "suspect": false, "outside": true, "aliases": ["Felix", "Moreau"]}
+  ],
+  "locations": [
+    {"name": "Vault Room", "aliases": ["vault room", "the vault"]},
+    {"name": "Front Desk", "aliases": ["front desk"]},
+    {"name": "Main Entrance", "aliases": ["main entrance"], "entrance": true},
+    {"name": "Side Door", "aliases": ["side door"], "entrance": true},
+    {"name": "Ellis Gallery", "aliases": ["the gallery"]},
+    {"name": "Celia's flat", "aliases": ["Celia's flat", "my flat"], "onsite": false}
+  ],
+  "item": {"name": "Harbour at Dusk", "aliases": ["painting", "canvas"]},
+  "scene": "Vault Room",
+  "window": {
+    "start": {"doc": "brief", "quote": "The painting was last checked at 2026-09-18 18:05 during the closing round."},
+    "end": {"doc": "brief", "quote": "At 2026-09-19 09:05, Margot Ellis found that the painting in the Vault Room had been replaced with a forgery."}
+  }
+}

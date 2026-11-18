@@ -1,0 +1,13 @@
+---
+id: interview_margot
+type: interview
+title: Interview with Margot Ellis (gallery director)
+date: 2026-09-18
+author: Margot Ellis
+---
+Q: When did you last see the painting?
+A: I checked the painting at 6:05 PM and locked the vault room. I left at 6:15 PM.
+Q: And in the morning?
+A: I came in at 8:50 the next morning and noticed the varnish was wrong.
+Q: Any staff problems?
+A: Omar has been complaining about money for months.

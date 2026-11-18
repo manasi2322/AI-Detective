@@ -34,6 +34,7 @@ class Document:
     body: str
     path: str
     author: str | None = None
+    stage: int = 1  # evidence uncovered later in the investigation has a higher stage
 
     @property
     def kind(self) -> EvidenceKind:

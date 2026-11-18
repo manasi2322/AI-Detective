@@ -1,0 +1,8 @@
+---
+id: memo_parking
+type: notice
+title: Facilities memo
+date: 2026-10-01
+author: Facilities
+---
+The car park barrier will be serviced on Thursday at 8 AM. Please use the side gate.

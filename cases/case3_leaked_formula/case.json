@@ -1,0 +1,26 @@
+{
+  "id": "case3_leaked_formula",
+  "title": "The Leaked Formula",
+  "difficulty": "impossible",
+  "incident_date": "2026-10-07",
+  "summary": "Kestrel Labs' secret Aurum coating formula was downloaded from the Lab Wing terminal and appeared on a competitor's server the next morning.",
+  "people": [
+    {"name": "Iris Kemp", "role": "senior chemist", "suspect": true, "aliases": ["Iris", "Kemp", "Dr. Kemp"]},
+    {"name": "Noah Fisk", "role": "lab technician", "suspect": true, "aliases": ["Noah", "Fisk"]},
+    {"name": "Paul Ortega", "role": "research manager", "suspect": true, "aliases": ["Paul", "Ortega"]},
+    {"name": "Zara Quinn", "role": "intern", "suspect": true, "aliases": ["Zara", "Quinn"]},
+    {"name": "Rhea Vance", "role": "business developer at Veltrix (external)", "suspect": false, "outside": true, "aliases": ["Rhea", "Vance"]}
+  ],
+  "locations": [
+    {"name": "Lab Wing", "aliases": ["lab wing", "lab terminal 3", "the lab"]},
+    {"name": "Main Door", "aliases": ["main door"], "entrance": true},
+    {"name": "Car Park", "aliases": ["car park"]},
+    {"name": "Kestrel Labs", "aliases": ["the building", "the office"]}
+  ],
+  "item": {"name": "Aurum formula", "aliases": ["formula", "formula_v7"]},
+  "scene": "Lab Wing",
+  "window": {
+    "start": {"doc": "brief", "quote": "The formula file was last opened by its owner at 2026-10-07 17:00."},
+    "end": {"doc": "brief", "quote": "At 2026-10-08 09:30, the Aurum formula was found on a Veltrix server."}
+  }
+}

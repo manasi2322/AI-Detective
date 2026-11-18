@@ -1,0 +1,11 @@
+---
+id: interview_iris
+type: interview
+title: Interview with Dr. Iris Kemp (senior chemist)
+date: 2026-10-07
+author: Iris Kemp
+---
+Q: When did you leave on Wednesday?
+A: I worked late in my office and left at about 10:15 PM.
+Q: Your account downloaded the formula at 10:15 PM. Did you log in to the lab terminal?
+A: I never logged in to the lab terminal that night. My password is saved on it, like everyone's.

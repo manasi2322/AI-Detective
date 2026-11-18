@@ -38,15 +38,19 @@ def load_document(path: Path) -> Document:
         body=body,
         path=str(path),
         author=meta.get("author"),
+        stage=int(meta.get("stage", 1)),
     )
 
 
-def load_case(case_dir: str | Path) -> Case:
+def load_case(case_dir: str | Path, stage: int | None = None) -> Case:
+    """Load a case. With `stage`, only evidence uncovered up to that stage is included."""
     root = Path(case_dir)
     spec = json.loads((root / "case.json").read_text(encoding="utf-8"))
     documents: dict[str, Document] = {}
     for path in sorted((root / "documents").glob("*.txt")):
         doc = load_document(path)
+        if stage is not None and doc.stage > stage:
+            continue
         if doc.id in documents:
             raise ValueError(f"duplicate document id {doc.id!r}")
         documents[doc.id] = doc
@@ -75,3 +79,8 @@ def load_case(case_dir: str | Path) -> Case:
 def load_solution(case_dir: str | Path) -> dict:
     """The answer key. Only tests/evaluation read this; the investigation pipeline never does."""
     return json.loads((Path(case_dir) / "solution.json").read_text(encoding="utf-8"))
+
+
+def case_stages(case_dir: str | Path) -> list[int]:
+    """The evidence stages a case has, e.g. [1] or [1, 2]."""
+    return sorted({load_document(p).stage for p in (Path(case_dir) / "documents").glob("*.txt")})

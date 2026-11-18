@@ -10,6 +10,12 @@ Claim types:
              speaker's last stated departure until 06:00 the next morning
   PRESENT    "I cleaned the Design Lab at around 8:45 PM"  -> at an on-site place at t (or a range)
   ELSEWHERE  "dinner at Lantern Bistro from 7 PM to 9:30"  -> somewhere off the premises over a range
+
+Statements about someone else are claims too, about that other person:
+  vouch      "Victor was with me at my flat from 8 PM until midnight"  (an alibi given by a friend)
+  sighting   "Around 9:05 PM I saw Victor near the side door"
+They keep `reported_by`, so a friend's word is never mistaken for the person's own account
+or for a record.
 """
 
 from __future__ import annotations
@@ -44,13 +50,16 @@ class Claim:
     end: datetime | None = None
     location: str | None = None
     approximate: bool = False
+    kind: str = "self"  # "self" | "vouch" | "sighting"
+    reported_by: str | None = None  # who said it, when it is not the person themselves
 
     def describe(self) -> str:
         t = self.start.strftime("%H:%M")
         if self.end:
             t += self.end.strftime("-%H:%M")
         where = f" {self.location}" if self.location else ""
-        return f"{self.type.value}{where} {'~' if self.approximate else ''}{t}"
+        by = f" (per {self.reported_by})" if self.reported_by else ""
+        return f"{self.type.value}{where} {'~' if self.approximate else ''}{t}{by}"
 
 
 HOME = "home"  # pseudo-location for "at home" / "from home": always off the premises
@@ -73,6 +82,8 @@ _ARRIVE = re.compile(
     re.IGNORECASE,
 )
 _HOME = re.compile(r"\bhome\b", re.IGNORECASE)
+_VOUCH = re.compile(r"\bwith (?:me|us)\b|\btogether\b", re.IGNORECASE)
+_SIGHTING = re.compile(r"\bI (?:saw|spotted|noticed|watched|seen)\b", re.IGNORECASE)
 _CHAT_PREFIX = re.compile(r"^\[(?P<stamp>[^\]]+)\]\s+[^:]+:\s*")
 
 
@@ -86,8 +97,9 @@ def extract_claims(case: Case, segments: list[Segment], matcher: EntityMatcher) 
     counters: dict[str, int] = {}
 
     def add(seg_doc, claim_kwargs) -> None:
-        key = (claim_kwargs["person"], claim_kwargs["type"], claim_kwargs["start"], claim_kwargs.get("end"))
-        if any((c.person, c.type, c.start, c.end) == key and c.quote == claim_kwargs["quote"] for c in claims):
+        key = (claim_kwargs["person"], claim_kwargs["type"], claim_kwargs["start"], claim_kwargs.get("end"),
+               claim_kwargs.get("kind", "self"))
+        if any((c.person, c.type, c.start, c.end, c.kind) == key and c.quote == claim_kwargs["quote"] for c in claims):
             return
         counters[seg_doc.id] = counters.get(seg_doc.id, 0) + 1
         claims.append(Claim(id=f"{seg_doc.id}#c{counters[seg_doc.id]}", **claim_kwargs))
@@ -147,4 +159,11 @@ def extract_claims(case: Case, segments: list[Segment], matcher: EntityMatcher) 
             dict(person=person, type=ctype, start=span.start, end=span.end, location=where,
                  approximate=span.approximate, quote=quote),
         )
+        # The same sentence may place someone else: "Victor was with me", "I saw Victor".
+        third = "vouch" if _VOUCH.search(text) else "sighting" if _SIGHTING.search(text) else None
+        if third:
+            for other in matcher.unique(matcher.people(text)):
+                if other != person:
+                    add(doc, dict(person=other, type=ctype, start=span.start, end=span.end, location=where,
+                                  approximate=span.approximate, quote=quote, kind=third, reported_by=person))
     return claims

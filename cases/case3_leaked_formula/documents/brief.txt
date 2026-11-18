@@ -1,0 +1,9 @@
+---
+id: brief
+type: brief
+title: Case brief - The Leaked Formula
+date: 2026-10-08
+---
+At 2026-10-08 09:30, the Aurum formula was found on a Veltrix server.
+The formula file was last opened by its owner at 2026-10-07 17:00.
+The file can only be downloaded from Lab Terminal 3 in the Lab Wing. Several staff save their passwords on that terminal.

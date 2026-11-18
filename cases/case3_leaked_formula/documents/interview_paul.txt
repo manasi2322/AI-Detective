@@ -1,0 +1,11 @@
+---
+id: interview_paul
+type: interview
+title: Interview with Paul Ortega (research manager)
+date: 2026-10-07
+author: Paul Ortega
+---
+Q: When did you leave?
+A: I left at 6:30 PM.
+Q: Anything we should know?
+A: Iris was furious about being passed over for the lab director job last month.

@@ -19,6 +19,7 @@ from .presence import Presence
 from .records import Dispute, find_disputes
 from .segments import Segment, segment_document
 from .speculation import Speculation, find_speculation
+from .statements import StatementConflict, find_conflicts
 from .store import EvidenceStore
 from .timeline import Timeline
 
@@ -40,11 +41,12 @@ class Investigation:
     motives: list[Motive] = field(default_factory=list)
     cctv_matches: list[CCTVMatch] = field(default_factory=list)
     connections: list[Connection] = field(default_factory=list)
+    conflicts: list[StatementConflict] = field(default_factory=list)
     assessment: Assessment | None = None
 
     def all_quotes(self) -> list[Quote]:
         quotes = [e.quote for e in self.index.events] + [c.quote for c in self.claims]
-        quotes += [q for a in self.alibis.values() for c in a.checks for q in c.evidence]
+        quotes += [q for a in self.alibis.values() for c in a.checks + a.sightings for q in c.evidence]
         quotes += [s.quote for s in self.speculation] + [q for o in self.opportunity.values() for q in o.evidence]
         if self.window:
             quotes += [self.window.start_quote, self.window.end_quote]
@@ -90,8 +92,9 @@ def investigate(
         cctv_matches=match_cctv(case, [e for e in records if e.quote not in disputed], presence),
         connections=find_connections(case, segments),
     )
+    inv.conflicts = find_conflicts(case, inv.alibis)
     inv.assessment = assess(case, inv.alibis, inv.opportunity, window, inv.motives, inv.cctv_matches,
-                            inv.connections, inv.speculation, inv.disputes)
+                            inv.connections, inv.speculation, inv.disputes, inv.conflicts)
     if investigator is not None:
         add_llm_steps(case, inv.assessment, investigator)
 

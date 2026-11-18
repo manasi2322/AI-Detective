@@ -1,0 +1,9 @@
+---
+id: chat_noah_rhea
+type: chat
+title: Messages recovered from Noah Fisk's phone (day 2)
+date: 2026-10-05
+stage: 2
+---
+[2026-10-05 19:20] Rhea Vance: Veltrix will pay you 50,000 for the formula. Bring it on a USB stick.
+[2026-10-05 19:31] Noah Fisk: I need the money to clear my debts. Wednesday night, when the lab is quiet.

@@ -47,3 +47,33 @@ DISPUTED = Path(__file__).resolve().parent / "fixtures" / "disputed_badge"
 @pytest.fixture(scope="session")
 def inv_disputed():
     return investigate(load_case(DISPUTED))
+
+
+CASES = Path(__file__).resolve().parent.parent / "cases"
+CASE2 = CASES / "case2_gallery_switch"
+CASE3 = CASES / "case3_leaked_formula"
+
+
+@pytest.fixture(scope="session")
+def inv2():
+    return investigate(load_case(CASE2))
+
+
+@pytest.fixture(scope="session")
+def solution2():
+    return load_solution(CASE2)
+
+
+@pytest.fixture(scope="session")
+def inv3():
+    return investigate(load_case(CASE3))
+
+
+@pytest.fixture(scope="session")
+def inv3_stage1():
+    return investigate(load_case(CASE3, stage=1))
+
+
+@pytest.fixture(scope="session")
+def solution3():
+    return load_solution(CASE3)

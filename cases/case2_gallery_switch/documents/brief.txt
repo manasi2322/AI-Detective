@@ -1,0 +1,9 @@
+---
+id: brief
+type: brief
+title: Case brief - The Gallery Switch
+date: 2026-09-19
+---
+At 2026-09-19 09:05, Margot Ellis found that the painting in the Vault Room had been replaced with a forgery.
+The painting was last checked at 2026-09-18 18:05 during the closing round.
+Badge readers cover the Main Entrance and the Vault Room door. The Side Door opens from the inside and has no badge reader.

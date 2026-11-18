@@ -1,0 +1,9 @@
+---
+id: cctv
+type: cctv
+title: CCTV review notes (security contractor)
+date: 2026-09-18
+---
+2026-09-18 21:06 | Side Door camera | A man in a paint-stained jacket enters through the side door carrying a long flat case. His face is turned away.
+2026-09-18 21:13 | Front Desk camera | Omar Haddad sits at the front desk watching the monitors.
+2026-09-18 21:31 | Side Door camera | The same man leaves by the side door carrying the long flat case.

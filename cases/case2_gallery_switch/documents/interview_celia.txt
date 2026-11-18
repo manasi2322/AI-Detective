@@ -1,0 +1,9 @@
+---
+id: interview_celia
+type: interview
+title: Interview with Celia Ward (Victor's friend)
+date: 2026-09-18
+author: Celia Ward
+---
+Q: Was Victor with you on Friday evening?
+A: Yes. Victor was with me at my flat from 8 PM until midnight. We watched the whole match.

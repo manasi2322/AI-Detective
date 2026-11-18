@@ -1,0 +1,9 @@
+---
+id: cctv
+type: cctv
+title: CCTV review (requested on day 2)
+date: 2026-10-07
+stage: 2
+---
+2026-10-07 22:12 | Lab Wing camera | A person in a lab coat sits at Lab Terminal 3 with their back to the camera and plugs in a USB stick.
+2026-10-07 22:19 | Car Park camera | Iris Kemp walks to her car and drives away.

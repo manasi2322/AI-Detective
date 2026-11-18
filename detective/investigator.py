@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable
 
-from .alibi import Alibi, Verdict
+from .alibi import Alibi, AlibiCheck, Verdict
 from .grounding import find_quote, verify
 from .links import CCTVMatch, Connection
 from .models import Case, EvidenceKind, Quote
@@ -50,6 +50,10 @@ WEIGHTS = {
     "cctv_match": 1.0,
     "connection": 1.0,
     "denied_connection": 2.0,
+    "vouch_contradicted": 1.0,  # a friend's alibi for them is false too
+    "vouch_supported": -0.5,
+    "sighting_confirmed": 1.0,  # a witness saw them on the premises in the window, and records agree
+    "sighting_unconfirmed": 0.5,  # a witness saw them there; no record confirms it
     MotiveType.INTENT: 2.0,
     MotiveType.GAIN: 1.5,
     MotiveType.MONEY: 1.0,
@@ -61,7 +65,7 @@ WEIGHTS = {
 @dataclass(frozen=True)
 class Step:
     suspect: str
-    kind: str  # alibi | opportunity | motive | link | connection | speculation | dispute | llm
+    kind: str  # alibi | sighting | conflict | opportunity | motive | link | connection | speculation | dispute | llm
     label: Label
     weight: float
     evidence: tuple[Quote, ...]
@@ -99,19 +103,38 @@ class Assessment:
         return self.ranking()[0].suspect
 
     def confidence(self) -> tuple[str, str]:
+        """(level, explanation). Level depends on the lead, on record-backed facts, and on how much of
+        the lead would survive if every assumption turned out wrong."""
+        level, reasons = self.confidence_reasons()
+        return level, " ".join(reasons)
+
+    def confidence_reasons(self) -> tuple[str, list[str]]:
         ranked = self.ranking()
         top = ranked[0]
-        margin = top.score - (ranked[1].score if len(ranked) > 1 else 0.0)
-        hard = any(s.label is Label.FACT and s.weight > 0 for s in top.steps)
-        if margin >= 5 and hard:
+        runner = ranked[1] if len(ranked) > 1 else None
+        margin = top.score - (runner.score if runner else 0.0)
+        facts = sum(s.weight for s in top.steps if s.label is Label.FACT and s.weight > 0)
+        assumed = sum(s.weight for s in top.steps if s.label is Label.ASSUMPTION and s.weight > 0)
+        claims = sum(s.weight for s in top.steps if s.label is Label.CLAIM and s.weight > 0)
+        robust = margin - assumed
+        if margin >= 5 and facts > 0 and robust >= 3:
             level = "high"
-        elif margin >= 2:
+        elif margin >= 2 and (facts > 0 or margin >= 3):
             level = "medium"
         else:
             level = "low"
-        why = (f"{top.suspect} leads by {margin:.1f} points; "
-               f"{'at least one record-backed fact' if hard else 'no record-backed fact'} points to them.")
-        return level, why
+        reasons = [
+            f"{top.suspect} leads {runner.suspect if runner else 'nobody'} by {margin:.1f} points.",
+            f"Record-backed facts add {facts:+.1f}, statements add {claims:+.1f} and assumptions add {assumed:+.1f} "
+            f"to {top.suspect}'s score.",
+            f"If every assumption were wrong, the lead would be {robust:.1f} points.",
+        ]
+        if facts == 0:
+            reasons.append("No record-backed fact points to them, so the case rests on statements and inference.")
+        others = [l for l in ranked[1:] if l.score > 0]
+        if others:
+            reasons.append("Also above zero: " + ", ".join(f"{l.suspect} ({l.score:+.1f})" for l in others) + ".")
+        return level, reasons
 
 
 def validate(case: Case, step: Step) -> str | None:
@@ -136,6 +159,9 @@ def _alibi_steps(name: str, alibi: Alibi) -> list[Step]:
     broken = alibi.status == "broken"
     for c in alibi.checks:
         ev = tuple(c.evidence)
+        if c.claim.kind == "vouch":
+            steps.append(_vouch_step(name, c))
+            continue
         if c.verdict is Verdict.CONTRADICTED:
             steps.append(Step(name, "alibi", Label.FACT, WEIGHTS["alibi_contradicted"], ev,
                               f"Alibi contradicted: {c.explanation}", c.claim.quote))
@@ -152,6 +178,35 @@ def _alibi_steps(name: str, alibi: Alibi) -> list[Step]:
             steps.append(Step(name, "alibi", Label.CLAIM, 0.0, (c.claim.quote,),
                               f"Alibi unverified: {c.explanation}", c.claim.quote))
     return steps
+
+
+def _vouch_step(name: str, c: AlibiCheck) -> Step:
+    by = c.claim.reported_by
+    if c.verdict is Verdict.CONTRADICTED:
+        return Step(name, "alibi", Label.FACT, WEIGHTS["vouch_contradicted"], tuple(c.evidence),
+                    f"Alibi from {by} is false: {c.explanation}", c.claim.quote)
+    if c.verdict is Verdict.SUPPORTED:
+        return Step(name, "alibi", Label.FACT, WEIGHTS["vouch_supported"], tuple(c.evidence),
+                    f"Alibi from {by} confirmed: {c.explanation}", c.claim.quote)
+    return Step(name, "alibi", Label.CLAIM, 0.0, (c.claim.quote,),
+                f"Alibi rests only on {by}'s word, which no record can confirm; it does not count as evidence.",
+                c.claim.quote)
+
+
+def _sighting_step(case: Case, name: str, c: AlibiCheck, window: Window | None) -> Step:
+    claim, by = c.claim, c.claim.reported_by
+    loc = case.location(claim.location)
+    inside = window is None or window.start <= claim.start <= window.end
+    relevant = bool(loc and loc.onsite and inside)
+    if c.verdict is Verdict.SUPPORTED and relevant:
+        return Step(name, "sighting", Label.FACT, WEIGHTS["sighting_confirmed"], tuple(c.evidence),
+                    f"{by} saw {name} at {claim.location}, and records agree: {c.explanation}", claim.quote)
+    if c.verdict is Verdict.CONTRADICTED:
+        return Step(name, "sighting", Label.CLAIM, 0.0, (claim.quote,),
+                    f"{by}'s sighting of {name} is contradicted by records: {c.explanation}", claim.quote)
+    weight = WEIGHTS["sighting_unconfirmed"] if relevant else 0.0
+    return Step(name, "sighting", Label.CLAIM, weight, (claim.quote,),
+                f"{by} says they saw {name} at {claim.location}; no record confirms it.", claim.quote)
 
 
 def _opportunity_step(name: str, opp: Opportunity, alibi: Alibi, window: Window) -> Step:
@@ -180,10 +235,16 @@ def assess(
     connections: list[Connection],
     speculation: list[Speculation],
     disputes: list[Dispute],
+    conflicts: list | None = None,
 ) -> Assessment:
     logs = {p.name: SuspectLog(p.name) for p in case.suspects}
     for name, log in logs.items():
         log.steps += _alibi_steps(name, alibis[name])
+        log.steps += [_sighting_step(case, name, c, window) for c in alibis[name].sightings]
+        for conflict in (x for x in conflicts or [] if x.person == name):
+            log.steps.append(Step(name, "conflict", Label.CLAIM, 0.0,
+                                  (conflict.a.claim.quote, conflict.b.claim.quote),
+                                  f"Statements conflict: {conflict.explanation()}"))
         if window and name in opportunity:
             log.steps.append(_opportunity_step(name, opportunity[name], alibis[name], window))
 

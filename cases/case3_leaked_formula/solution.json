@@ -1,0 +1,23 @@
+{
+  "culprit": "Noah Fisk",
+  "initial_suspect": "Iris Kemp",
+  "motive": "Veltrix's Rhea Vance offered 50,000 for the formula; Noah needed money for debts.",
+  "method": "Noah came back at 21:40, entered the Lab Wing at 22:09 and, at 22:12, used Iris's saved login on Lab Terminal 3 to download the formula, while Iris was already heading to her car.",
+  "lies": [
+    {"person": "Noah Fisk", "claim": "I've never spoken to anyone at Veltrix.", "contradicted_by": ["chat_noah_rhea"]}
+  ],
+  "honest": ["Iris Kemp", "Paul Ortega", "Zara Quinn"],
+  "red_herrings": [
+    {"person": "Iris Kemp", "why": "Her account downloaded the file at 22:15 and she resented being passed over, but CCTV shows her in the car park at 22:19, and the person at the terminal at 22:12 matches Noah's badge entry."},
+    {"person": "Zara Quinn", "why": "Speculates that it must have been Iris."}
+  ],
+  "disputed": ["login_log:L1"],
+  "speculation": [{"speaker": "Zara Quinn", "about": "Iris Kemp"}],
+  "motives": {"Noah Fisk": ["gain", "money"], "Iris Kemp": ["conflict"], "Paul Ortega": [], "Zara Quinn": []},
+  "cctv_matches": [{"cctv": "cctv:L1", "person": "Noah Fisk"}],
+  "connections": [{"suspect": "Noah Fisk", "party": "Rhea Vance", "denied": true}],
+  "opportunity": {
+    "at scene": ["Noah Fisk"],
+    "on site": ["Iris Kemp", "Paul Ortega", "Zara Quinn"]
+  }
+}

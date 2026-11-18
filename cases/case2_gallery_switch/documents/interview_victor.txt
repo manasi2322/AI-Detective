@@ -1,0 +1,13 @@
+---
+id: interview_victor
+type: interview
+title: Interview with Victor Lane (art restorer)
+date: 2026-09-18
+author: Victor Lane
+---
+Q: When did you leave the gallery on Friday?
+A: I left the gallery at 6:30 PM.
+Q: Where were you that evening?
+A: I was at Celia's flat from 8 PM until midnight, watching the match. Ask Celia, she'll tell you.
+Q: Do you know Felix Moreau?
+A: Only by name. I've never spoken to him.

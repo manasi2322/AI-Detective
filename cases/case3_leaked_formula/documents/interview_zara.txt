@@ -1,0 +1,11 @@
+---
+id: interview_zara
+type: interview
+title: Interview with Zara Quinn (intern)
+date: 2026-10-07
+author: Zara Quinn
+---
+Q: When did you leave?
+A: I left at about 7 PM.
+Q: Who do you think leaked it?
+A: It must have been Iris. Everyone saw how upset she was about the promotion.

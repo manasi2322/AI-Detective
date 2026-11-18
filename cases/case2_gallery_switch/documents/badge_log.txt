@@ -1,0 +1,17 @@
+---
+id: badge_log
+type: badge_log
+title: Badge reader export - Ellis Gallery
+date: 2026-09-18
+---
+2026-09-18 17:45 | Lucy Tran | Main Entrance | EXIT
+2026-09-18 18:10 | Margot Ellis | Vault Room | EXIT
+2026-09-18 18:15 | Margot Ellis | Main Entrance | EXIT
+2026-09-18 18:30 | Victor Lane | Main Entrance | EXIT
+2026-09-18 19:55 | Omar Haddad | Main Entrance | ENTRY
+2026-09-18 20:30 | Ben Price | Main Entrance | ENTRY
+2026-09-18 21:10 | Omar Haddad | Vault Room | ENTRY
+2026-09-18 21:55 | Ben Price | Main Entrance | EXIT
+2026-09-19 06:00 | Omar Haddad | Main Entrance | EXIT
+2026-09-19 08:50 | Margot Ellis | Main Entrance | ENTRY
+2026-09-19 08:55 | Margot Ellis | Vault Room | ENTRY
