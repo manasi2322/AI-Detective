@@ -10,6 +10,9 @@
   motives   <case>                   reasons to act, with who said them
   links     <case>                   CCTV matches (assumptions), hidden connections, disputed badges
   investigate <case> [--llm]         reasoning log per suspect, scores, most likely suspect
+  report    <case> [--out FILE]      full Markdown case report; every citation checked against the sources
+  evaluate  [cases_dir] [-v]         score every case against its answer key
+  --stage N on any case command uses only the evidence uncovered up to stage N.
   add --llm to any command to also run Claude extraction (needs the anthropic SDK + credentials).
 """
 
@@ -26,8 +29,8 @@ from .timeline import Timeline
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="detective", description="AI Detective - evidence explorer")
-    ap.add_argument("command", choices=["timeline", "search", "entities", "alibis", "speculation", "opportunity", "analyze", "motives", "links", "investigate"])
-    ap.add_argument("case_dir")
+    ap.add_argument("command", choices=["timeline", "search", "entities", "alibis", "speculation", "opportunity", "analyze", "motives", "links", "investigate", "report", "evaluate"])
+    ap.add_argument("case_dir", nargs="?")
     ap.add_argument("query", nargs="?", default="")
     ap.add_argument("--person")
     ap.add_argument("-k", type=int, default=5)
@@ -35,9 +38,20 @@ def main(argv: list[str] | None = None) -> int:
     group.add_argument("--records", action="store_true", help="only hard records")
     group.add_argument("--claims", action="store_true", help="only witness claims")
     ap.add_argument("--llm", action="store_true", help="also extract events with Claude")
+    ap.add_argument("--stage", type=int, help="only evidence uncovered up to this stage")
+    ap.add_argument("--out", help="report: write to this file instead of printing")
+    ap.add_argument("-v", "--verbose", action="store_true", help="evaluate: list every check")
     args = ap.parse_args(argv)
 
-    case = load_case(args.case_dir)
+    if args.command == "evaluate":
+        from .evaluate import evaluate_all, render
+
+        results = evaluate_all(args.case_dir or "cases")
+        print(render(results, args.verbose))
+        return 0 if all(r.solved for r in results) else 1
+    if not args.case_dir:
+        ap.error("case_dir is required")
+    case = load_case(args.case_dir, stage=args.stage)
     propose = investigator = None
     if args.llm:
         from .anthropic_backend import make_claude_investigator, make_claude_proposer
@@ -46,7 +60,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "investigate":
             investigator = make_claude_investigator()
     inv = investigate(case, propose, investigator)
-    print(f"# {case.title}  ({case.difficulty}, {len(case.documents)} documents)\n")
+    if args.command != "report":
+        print(f"# {case.title}  ({case.difficulty}, {len(case.documents)} documents)\n")
 
     if args.command == "timeline":
         tl = inv.timeline
@@ -76,6 +91,21 @@ def main(argv: list[str] | None = None) -> int:
         print(render_links(inv))
     elif args.command == "investigate":
         print(render_investigation(inv, args.person))
+    elif args.command == "report":
+        from .loader import case_stages
+        from .report import build_report
+
+        stages = case_stages(args.case_dir)
+        earlier = None
+        if args.stage is None and len(stages) > 1:
+            earlier = investigate(load_case(args.case_dir, stage=stages[0]))
+        text = build_report(inv, earlier)
+        if args.out:
+            with open(args.out, "w", encoding="utf-8") as f:
+                f.write(text)
+            print(f"Report written to {args.out} (all citations checked).")
+        else:
+            print(text)
     else:
         for name, mentions in inv.index.mentions.items():
             if not mentions:

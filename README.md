@@ -12,17 +12,18 @@ found in the evidence is rejected.
 | 1 | Evidence foundation: Case 1, extraction, search, timeline, grounding | Done (~20%) | 22 |
 | 2 | Alibi checking, speculation flags, opportunity, holdout case | Done (~35%) | 28 |
 | 3 | Disputed records, motives, links, investigator with a labelled reasoning log | Done (~60%) | 17 |
-| 4 | Cases 2 and 3 (twisted / impossible), follow-up questions, new-evidence reassessment | Next | |
-| 5 | Final case reports, evaluation harness across all cases | Planned | |
+| 4 | Cases 2 and 3, explained confidence, checked case reports, evaluation script, reassessment as evidence arrives | Done (~80%) | 27 |
+| 5 | Follow-up questions from an investigator, live LLM runs, final polish | Next | |
 
-**Total: 67 automated tests, all passing.**
+**Total: 94 automated tests, all passing.** Evaluation: culprit named correctly in 3/3 cases, 66/66 answer-key checks passed.
 
 ## Quick start
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install pytest
-pytest -q                                   # 67 passed
+pytest -q                                   # 94 passed
+python evaluate.py                          # score all three cases against their answer keys
 ```
 
 ---
@@ -281,6 +282,109 @@ shows her in the canteen), plus a recovered chat with a buyer and a denial added
 
 ---
 
+## Milestone 4: three cases, reports and evaluation (~80%)
+
+The system now handles all three required cases, writes a full case report whose citations are
+all checked against the source text, and an evaluation script scores every case against its
+answer key.
+
+### What was built
+
+- **Case 2, "The Gallery Switch"** (twisted): overnight, a painting is replaced with a forgery.
+  - The culprit has a **"perfect" alibi from a friend**: "Victor was with me at my flat from 8 PM
+    until midnight." The system records this as a statement Celia made about Victor (`vouch`),
+    never as a record. The gallery's guest Wi-Fi log shows Victor's phone at the Side Door at 21:04,
+    so his alibi and Celia's both fall.
+  - **The guard's badge was used by someone else.** It opened the Vault Room at 21:10, but CCTV
+    shows the guard at the front desk at 21:13, so the swipe is disputed and left out.
+  - **Contradictory statements:** the cleaner saw Victor at the side door around 21:05, which
+    conflicts with Celia's account. The records back the cleaner.
+  - **Misleading clues:** the guard's badge, a curator's guess ("it was probably Omar") and the
+    guard's money complaints all point at the wrong person and are outweighed.
+- **Case 3, "The Leaked Formula"** (impossible): a secret formula is downloaded and leaked.
+  - The evidence arrives in **two stages**. With the first 8 documents, Iris's account is logged
+    in at the terminal, she had a grudge and a colleague blames her, so the system names **Iris**.
+  - At stage 2, CCTV shows Iris in the car park four minutes after "her" login, which disputes
+    the login. CCTV also shows someone at the terminal at 22:12, matched by timing to Noah's badge.
+    A recovered chat shows a competitor offering Noah money, which he denied. The system switches
+    to **Noah**.
+  - Noah's own account of the evening is true, so his alibi holds. He is caught by the denial,
+    the motive and the CCTV match, which is why confidence is **medium**, not high.
+- **Explained confidence.** Each conclusion states the lead over the runner-up, how much comes
+  from record-backed facts, statements and assumptions, and how big the lead would be if every
+  assumption were wrong.
+- **Case report** (`report.py`). A Markdown report with these sections:
+  - conclusion and confidence;
+  - ranking;
+  - the case against the top suspect;
+  - why not the others;
+  - contradictions;
+  - misleading evidence set aside;
+  - records in the crime window;
+  - for staged cases, how the conclusion changed.
+
+  Before the report is returned, a checker parses the finished text and verifies **every
+  citation**: each quote must appear on the cited line of the cited document, and each line
+  reference must exist. A report with a bad citation is refused.
+- **Evaluation** (`evaluate.py`). Runs every case and turns each item in its answer key into a
+  pass/fail check: the culprit, the early wrong lead, each lie caught, honest alibis intact, red
+  herrings below the culprit, disputed records, statement conflicts, speculation, motives, CCTV
+  matches, connections, opportunity, and report citations.
+- **Engine changes the new cases needed:**
+  - statements about other people (a friend vouching, a witness sighting);
+  - conflicts between two witnesses' statements;
+  - evidence stages (`stage:` in a document's front matter, `--stage` on the command line);
+  - "midnight" as a time;
+  - door-aware disputes (badging out and then appearing on the car park camera is one trip, not
+    a conflict);
+  - a Wi-Fi or login record at a door counting as being on site.
+
+### Results
+
+```
+| Case                         | Difficulty | Named       | Expected    | Confidence | Checks passed | Score |
+| The Missing Prototype Laptop | easy       | Marcus Hale | Marcus Hale | high       | 21/21         | 100%  |
+| The Gallery Switch           | twisted    | Victor Lane | Victor Lane | high       | 23/23         | 100%  |
+| The Leaked Formula           | impossible | Noah Fisk   | Noah Fisk   | medium     | 22/22         | 100%  |
+
+Culprit named correctly in 3/3 cases; 66/66 checks passed (100%).
+```
+
+Case 3 at stage 1 names Iris Kemp (+1.5), which is the intended wrong lead. With all evidence,
+Noah Fisk scores +4.0 and Iris −0.5.
+
+### Try it
+
+```bash
+python evaluate.py -v                                              # every check, every case
+python -m detective report      cases/case2_gallery_switch --out case2_report.md
+python -m detective report      cases/case3_leaked_formula        # includes "how the conclusion changed"
+python -m detective investigate cases/case3_leaked_formula --stage 1   # the early, wrong picture
+python -m detective links       cases/case2_gallery_switch        # disputed guard badge, CCTV match
+```
+
+### Tests (27)
+
+| File | What it checks |
+|---|---|
+| `test_case2.py` (7) | Culprit named with high confidence; the friend's alibi is a statement about Victor, contradicted by the Wi-Fi log; the guard's badge is disputed and excluded; the witness conflict is resolved by records; misleading clues against the guard are outweighed; the side-door figure is matched as an assumption |
+| `test_case3.py` (6) | Stage 1 names the wrong person; full evidence names the culprit with medium confidence; the login is disputed only once CCTV arrives; a door exit followed by a car park sighting is not a dispute; stages load in order; a culprit with a true alibi is caught by the denial |
+| `test_report.py` (7) | The report names the suspect and explains confidence; every citation in all three reports matches its source; a tampered quote and a missing line are caught; the Case 3 report shows how the conclusion changed |
+| `test_evaluate.py` (4) | All three cases solved with every check passing; a wrong answer key is detected; the `evaluate` and `report` commands work |
+| `test_statements.py` (2), `test_timeparse.py` (+1) | A person's own account is not a witness conflict; a door record without a direction counts as on site; midnight ends the day |
+
+### Not yet covered
+
+- **Follow-up questions** from an investigator ("why not Lena?", "what if the CCTV match is
+  wrong?") are not supported yet.
+- **The LLM has not been run live.** The LLM extractor and investigator are tested offline with
+  fakes.
+- **All three cases were written by the same author as the rules.** Each case needed some
+  general engine changes (listed above), but no case-specific rules or weights. A case written
+  by someone else would be a stronger test.
+
+---
+
 ## Architecture
 
 ```
@@ -289,6 +393,8 @@ cases/<case>/documents/*.txt  evidence, each with front matter (id, type, date, 
 cases/<case>/solution.json    answer key: read only by tests, never by the pipeline
 tests/fixtures/holdout_violin second case with its own answer key, used only by tests
 tests/fixtures/disputed_badge small case where CCTV disputes a badge swipe
+cases/<case>/documents/*.txt  `stage: 2` in front matter = evidence uncovered later (Case 3)
+evaluate.py                   score all cases against their answer keys
 
 detective/
   # Milestone 1
@@ -313,6 +419,10 @@ detective/
   motive.py            gain / intent / money / conflict / need, with owner and who reported it
   links.py             CCTV matches by timing (assumptions), hidden connections + denials
   investigator.py      labelled, weighted, cited reasoning log; scores; confidence; LLM step validation
+  # Milestone 4
+  statements.py        conflicts between witness statements, resolved by records where possible
+  report.py            Markdown case report + citation checker that verifies the finished text
+  evaluate.py          answer-key checks per case, summary table
   # Shared
   pipeline.py          wires it together; final check that every quote it outputs is grounded
   cli.py               command-line explorer
@@ -330,6 +440,10 @@ detective/
   nothing conflicts. An alibi nobody can check is never reported as confirmed.
 - **A badge is not a person.** Card and login records can be disputed by CCTV; a camera can't
   be disputed by a card.
+- **A friend's word is not a record.** An alibi given by someone else is kept as that person's
+  statement; it can be contradicted by records, but it can never confirm an alibi on its own.
+- **Check the output, not just the inputs.** The report checker parses the finished Markdown,
+  so a bug in the report code can't produce a citation that doesn't exist.
 - **One set of rules for rules and LLM.** Every reasoning step, whoever wrote it, goes through
   the same `validate` check before it can change a score.
 - **Speculation is shown, never counted.** Guesses appear in the log so the investigator can
