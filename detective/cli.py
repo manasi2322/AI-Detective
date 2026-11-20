@@ -12,6 +12,9 @@
   investigate <case> [--llm]         reasoning log per suspect, scores, most likely suspect
   report    <case> [--out FILE]      full Markdown case report; every citation checked against the sources
   evaluate  [cases_dir] [-v]         score every case against its answer key
+  ask       <case> "question" [--llm] follow-up question, answered with checked citations
+  reassess  <case> [--add FILE ...]  add evidence (or uncover the next stage) and show what changed
+  chat      <case>                   interactive: questions, :uncover, :add FILE, :report
   --stage N on any case command uses only the evidence uncovered up to stage N.
   add --llm to any command to also run Claude extraction (needs the anthropic SDK + credentials).
 """
@@ -29,7 +32,7 @@ from .timeline import Timeline
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="detective", description="AI Detective - evidence explorer")
-    ap.add_argument("command", choices=["timeline", "search", "entities", "alibis", "speculation", "opportunity", "analyze", "motives", "links", "investigate", "report", "evaluate"])
+    ap.add_argument("command", choices=["timeline", "search", "entities", "alibis", "speculation", "opportunity", "analyze", "motives", "links", "investigate", "report", "evaluate", "ask", "reassess", "chat"])
     ap.add_argument("case_dir", nargs="?")
     ap.add_argument("query", nargs="?", default="")
     ap.add_argument("--person")
@@ -41,6 +44,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--stage", type=int, help="only evidence uncovered up to this stage")
     ap.add_argument("--out", help="report: write to this file instead of printing")
     ap.add_argument("-v", "--verbose", action="store_true", help="evaluate: list every check")
+    ap.add_argument("--add", nargs="+", default=[], metavar="FILE", help="reassess: evidence documents to add")
     args = ap.parse_args(argv)
 
     if args.command == "evaluate":
@@ -51,9 +55,40 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if all(r.solved for r in results) else 1
     if not args.case_dir:
         ap.error("case_dir is required")
+    if args.command == "chat":
+        from .chat import run_chat
+
+        answerer = None
+        if args.llm:
+            from .anthropic_backend import make_claude_answerer
+
+            answerer = make_claude_answerer()
+
+        def lines():
+            while True:
+                try:
+                    yield input("detective> ")
+                except EOFError:
+                    return
+
+        run_chat(args.case_dir, lines(), stage=args.stage, answerer=answerer)
+        return 0
+    if args.command == "reassess":
+        from .chat import Session
+
+        session = Session(args.case_dir, stage=args.stage)
+        if args.add:
+            for path in args.add:
+                print(session.add(open(path, encoding="utf-8").read(), path))
+                print()
+        else:
+            print(session.uncover())
+        return 0
     case = load_case(args.case_dir, stage=args.stage)
     propose = investigator = None
-    if args.llm:
+    if args.llm and args.command == "ask":
+        pass  # ask --llm uses Claude to phrase the answer, below
+    elif args.llm:
         from .anthropic_backend import make_claude_investigator, make_claude_proposer
 
         propose = make_claude_proposer()
@@ -85,6 +120,17 @@ def main(argv: list[str] | None = None) -> int:
             print(render_speculation(inv))
         if args.command in ("opportunity", "analyze"):
             print(render_opportunity(inv))
+    elif args.command == "ask":
+        if not args.query:
+            ap.error('ask needs a question, e.g. ask cases/case1_missing_laptop "Did Marcus lie?"')
+        from .qa import answer_with_llm, ask
+
+        if args.llm:
+            from .anthropic_backend import make_claude_answerer
+
+            print(answer_with_llm(inv, args.query, make_claude_answerer()).render())
+        else:
+            print(ask(inv, args.query).render())
     elif args.command == "motives":
         print(render_motives(inv))
     elif args.command == "links":

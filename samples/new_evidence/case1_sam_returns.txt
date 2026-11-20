@@ -1,0 +1,9 @@
+---
+id: badge_log_annex
+type: badge_log
+title: Badge reader export - Design Lab side door (found later, hypothetical)
+date: 2026-03-12
+---
+2026-03-12 19:50 | Sam Whitfield | Main Entrance | ENTRY
+2026-03-12 19:52 | Sam Whitfield | Design Lab | ENTRY
+2026-03-12 20:05 | Sam Whitfield | Main Entrance | EXIT

@@ -128,3 +128,45 @@ def make_claude_investigator(model: str = MODEL):
         return [s.model_dump() for s in response.parsed_output.steps]
 
     return propose
+
+
+ANSWER_SYSTEM = """You answer an investigator's follow-up question about a detective case.
+
+Use only the evidence passages provided (each is prefixed with its document id) and the rules
+engine's answer. Be brief and plain. Say what the records show separately from what people
+claim, and say when something is an assumption or cannot be known from the evidence.
+List every passage you rely on in `quotes`, copied character-for-character with its document id.
+Any quote that is not in the documents is discarded."""
+
+
+def make_claude_answerer(model: str = MODEL):
+    import anthropic
+    from pydantic import BaseModel
+
+    class QuoteRef(BaseModel):
+        doc: str
+        text: str
+
+    class LLMAnswer(BaseModel):
+        answer: str
+        quotes: list[QuoteRef]
+
+    client = anthropic.Anthropic()
+
+    def answer(question: str, evidence: str, rules_answer: str) -> dict:
+        prompt = (f"<evidence>\n{evidence}\n</evidence>\n\n<rules_answer>\n{rules_answer}\n</rules_answer>\n\n"
+                  f"Question: {question}")
+        response = client.messages.parse(
+            model=model,
+            max_tokens=4000,
+            system=ANSWER_SYSTEM,
+            messages=[{"role": "user", "content": prompt}],
+            output_format=LLMAnswer,
+            extra_headers={"anthropic-beta": "server-side-fallback-2026-07-01"},
+            extra_body={"fallbacks": "default"},
+        )
+        if response.stop_reason == "refusal" or response.parsed_output is None:
+            return {"answer": "", "quotes": []}
+        return response.parsed_output.model_dump()
+
+    return answer

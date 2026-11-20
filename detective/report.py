@@ -205,33 +205,25 @@ def build_report(inv, earlier=None) -> str:
 
 
 def _reassessment(inv, earlier) -> list[str]:
-    case: Case = inv.index.case
-    old, new = earlier.assessment, inv.assessment
-    added = [d for d in case.documents.values() if d.id not in earlier.index.case.documents]
+    from .reassess import compare
+
+    c = compare(earlier, inv)
     out = ["## How the conclusion changed as evidence arrived", "",
            f"With the first {len(earlier.index.case.documents)} documents, the most likely suspect was "
-           f"**{old.most_likely}** ({old.logs[old.most_likely].score:+.1f}, confidence {old.confidence()[0]}). "
-           f"New evidence:", ""]
-    for d in added:
+           f"**{c.leader_before}** ({earlier.assessment.logs[c.leader_before].score:+.1f}, "
+           f"confidence {c.confidence_before}). New evidence:", ""]
+    for d in c.added:
         kind = "record" if d.kind is EvidenceKind.RECORD else "statement"
         out.append(f"- `{d.id}` ({kind}, stage {d.stage}): {d.title}")
-    out += ["", f"Now the most likely suspect is **{new.most_likely}** "
-            f"({new.logs[new.most_likely].score:+.1f}, confidence {new.confidence()[0]}).", "",
+    out += ["", f"Now the most likely suspect is **{c.leader_after}** "
+            f"({inv.assessment.logs[c.leader_after].score:+.1f}, confidence {c.confidence_after}).", "",
             "| Suspect | Before | After | Change |", "|---|---|---|---|"]
-    for name in new.logs:
-        b, n = old.logs[name].score, new.logs[name].score
-        out.append(f"| {name} | {b:+.1f} | {n:+.1f} | {n - b:+.1f} |")
+    out += [f"| {x.suspect} | {x.before:+.1f} | {x.after:+.1f} | {x.delta:+.1f} |" for x in c.changes]
     out.append("")
-    for name in dict.fromkeys([old.most_likely, new.most_likely]):
-        before = {s.text for s in old.logs[name].steps}
-        after = {s.text for s in new.logs[name].steps}
-        gone = [s for s in old.logs[name].steps if s.text not in after and s.weight != 0]
-        came = [s for s in new.logs[name].steps if s.text not in before and s.weight != 0]
-        if gone or came:
-            out += [f"What changed for {name}:", ""]
-            for s in gone:
-                out.append(f"- no longer counted ({s.weight:+.1f}): {s.text}")
-            for s in came:
-                out.append(f"- new ({s.weight:+.1f}): {s.text}")
+    for x in c.changes:
+        if x.suspect in (c.leader_before, c.leader_after) and (x.gone or x.new):
+            out += [f"What changed for {x.suspect}:", ""]
+            out += [f"- no longer counted ({s.weight:+.1f}): {s.text}" for s in x.gone]
+            out += [f"- new ({s.weight:+.1f}): {s.text}" for s in x.new]
             out.append("")
     return out

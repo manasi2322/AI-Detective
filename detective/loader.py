@@ -6,6 +6,8 @@ import json
 from datetime import date
 from pathlib import Path
 
+from dataclasses import replace
+
 from .models import Case, Document, Location, Person
 
 
@@ -26,7 +28,13 @@ def _parse_front_matter(raw: str, path: Path) -> tuple[dict[str, str], str]:
 
 
 def load_document(path: Path) -> Document:
-    meta, body = _parse_front_matter(path.read_text(encoding="utf-8"), path)
+    return document_from_text(path.read_text(encoding="utf-8"), path)
+
+
+def document_from_text(raw: str, path: Path | str = "<new evidence>") -> Document:
+    """Parse one evidence document (front matter + body) from text, e.g. evidence an investigator adds."""
+    path = Path(path)
+    meta, body = _parse_front_matter(raw, path)
     for required in ("id", "type", "title", "date"):
         if required not in meta:
             raise ValueError(f"{path}: missing front-matter field '{required}'")
@@ -84,3 +92,13 @@ def load_solution(case_dir: str | Path) -> dict:
 def case_stages(case_dir: str | Path) -> list[int]:
     """The evidence stages a case has, e.g. [1] or [1, 2]."""
     return sorted({load_document(p).stage for p in (Path(case_dir) / "documents").glob("*.txt")})
+
+
+def add_evidence(case: Case, documents: list[Document]) -> Case:
+    """A copy of the case with extra documents. The original case is not changed."""
+    docs = dict(case.documents)
+    for d in documents:
+        if d.id in docs:
+            raise ValueError(f"a document with id {d.id!r} is already in the case")
+        docs[d.id] = d
+    return replace(case, documents=docs)
