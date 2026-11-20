@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Detective</title>
+<style>
+:root {
+  --bg: #f6f5f2; --panel: #ffffff; --ink: #1d1d1f; --muted: #6b6b70; --line: #e3e1dc;
+  --accent: #2f5bd3; --accent-soft: #e8eefc;
+  --fact: #1f7a4d; --fact-bg: #e3f3ea; --claim: #9a5b00; --claim-bg: #fbf0dc;
+  --assume: #6b3fb5; --assume-bg: #efe8fa; --spec: #6b6b70; --spec-bg: #ececee;
+  --bad: #b3261e; --bad-bg: #fbe5e3; --good: #1f7a4d;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141416; --panel: #1d1d20; --ink: #ececef; --muted: #9a9aa2; --line: #2e2e33;
+    --accent: #8aa8ff; --accent-soft: #232b45;
+    --fact: #6fd3a0; --fact-bg: #18352a; --claim: #f2b85c; --claim-bg: #3a2c14;
+    --assume: #c3a2ff; --assume-bg: #2e2342; --spec: #a8a8b0; --spec-bg: #2a2a2f;
+    --bad: #ff8a80; --bad-bg: #3d1d1b; --good: #6fd3a0;
+    --shadow: none;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 14px 20px;
+  border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 5; }
+header h1 { font-size: 17px; margin: 0 8px 0 0; letter-spacing: .2px; }
+header h1 span { color: var(--muted); font-weight: 400; }
+select, button, input, textarea { font: inherit; color: inherit; }
+select, input[type=text], textarea { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; }
+button { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 7px 13px; cursor: pointer; }
+button.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); }
+button:disabled { opacity: .45; cursor: default; }
+.stage { color: var(--muted); font-size: 13px; }
+.spacer { flex: 1; }
+main { display: grid; grid-template-columns: 330px 1fr; gap: 18px; padding: 18px 20px; max-width: 1400px; margin: 0 auto; }
+@media (max-width: 860px) { main { grid-template-columns: 1fr; padding: 14px 16px; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+.verdict { padding: 16px; margin-bottom: 14px; }
+.verdict .who { font-size: 20px; font-weight: 650; margin: 2px 0 6px; }
+.verdict .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+.conf { display: inline-block; padding: 1px 9px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.conf.high { background: var(--fact-bg); color: var(--fact); }
+.conf.medium { background: var(--claim-bg); color: var(--claim); }
+.conf.low { background: var(--bad-bg); color: var(--bad); }
+.verdict ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+.suspect { padding: 11px 14px; border-top: 1px solid var(--line); cursor: pointer; }
+.suspect:first-of-type { border-top: 0; }
+.suspect.sel { background: var(--accent-soft); }
+.suspect .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.suspect .name { font-weight: 600; }
+.suspect .score { font-variant-numeric: tabular-nums; font-weight: 600; }
+.suspect .meta { color: var(--muted); font-size: 12px; }
+.bar { height: 6px; border-radius: 3px; background: var(--line); margin-top: 7px; position: relative; overflow: hidden; }
+.bar i { position: absolute; top: 0; bottom: 0; }
+.tabs { display: flex; gap: 2px; padding: 6px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { background: transparent; color: var(--muted); padding: 7px 12px; white-space: nowrap; }
+.tabs button.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.pane { padding: 16px 18px; min-height: 420px; }
+.pane h2 { font-size: 15px; margin: 4px 0 12px; }
+.step { padding: 10px 0; border-top: 1px solid var(--line); }
+.step:first-child { border-top: 0; }
+.step .head { display: flex; gap: 8px; align-items: baseline; }
+.w { font-variant-numeric: tabular-nums; font-weight: 700; min-width: 44px; }
+.w.pos { color: var(--bad); } .w.neg { color: var(--good); } .w.zero { color: var(--muted); }
+.chip { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px;
+  padding: 1px 7px; border-radius: 99px; white-space: nowrap; }
+.chip.fact, .chip.record { background: var(--fact-bg); color: var(--fact); }
+.chip.claim, .chip.statement { background: var(--claim-bg); color: var(--claim); }
+.chip.assumption { background: var(--assume-bg); color: var(--assume); }
+.chip.speculation { background: var(--spec-bg); color: var(--spec); }
+.cites { margin: 6px 0 0 52px; display: flex; flex-direction: column; gap: 4px; }
+.cite { font-size: 13px; color: var(--muted); cursor: pointer; border-left: 2px solid var(--line); padding-left: 9px; }
+.cite:hover { color: var(--ink); border-left-color: var(--accent); }
+.cite b { color: var(--accent); font-weight: 600; font-size: 12px; }
+.ask { display: flex; gap: 8px; margin-bottom: 10px; }
+.ask input { flex: 1; }
+.examples { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.examples button { background: var(--bg); color: var(--ink); border: 1px solid var(--line); font-size: 12px; padding: 4px 10px; }
+.qa { border-top: 1px solid var(--line); padding: 12px 0; }
+.qa .q { font-weight: 650; margin-bottom: 6px; }
+.qa .a { white-space: pre-wrap; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+td, th { text-align: left; padding: 6px 8px; border-top: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; border-top: 0; }
+tr.disputed td { text-decoration: line-through; color: var(--muted); }
+.docs { display: grid; grid-template-columns: 240px 1fr; gap: 14px; }
+@media (max-width: 860px) { .docs { grid-template-columns: 1fr; } }
+.doclist div { padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+.doclist div.on { background: var(--accent-soft); }
+.doclist small { color: var(--muted); }
+.viewer { border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-x: auto; }
+.viewer .ln { display: flex; gap: 12px; padding: 0 6px; border-radius: 4px; }
+.viewer .ln span:first-child { color: var(--muted); min-width: 22px; text-align: right; user-select: none; }
+.viewer .ln.hit { background: var(--claim-bg); }
+textarea { width: 100%; min-height: 170px; font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+pre.cmp { white-space: pre-wrap; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px; font-size: 12.5px; }
+.banner { padding: 10px 12px; border-radius: 8px; background: var(--accent-soft); margin-bottom: 12px; }
+.banner.changed { background: var(--bad-bg); color: var(--bad); font-weight: 600; }
+.md h1 { font-size: 20px; } .md h2 { font-size: 16px; margin-top: 22px; } .md h3 { font-size: 14px; }
+.md li { margin: 2px 0; } .md code { font-size: 12px; }
+.muted { color: var(--muted); }
+.legend > span { white-space: nowrap; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; font-size: 12px; color: var(--muted); align-items: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI Detective <span>· evidence-grounded investigation</span></h1>
+  <select id="caseSel" aria-label="Case"></select>
+  <span class="stage" id="stageInfo"></span>
+  <button id="uncoverBtn" class="ghost">Uncover next evidence</button>
+  <span class="spacer"></span>
+  <button id="resetBtn" class="ghost">Reset</button>
+</header>
+<main>
+  <aside>
+    <div class="panel verdict" id="verdict"></div>
+    <div class="panel" id="suspects"></div>
+  </aside>
+  <section class="panel">
+    <nav class="tabs" id="tabs"></nav>
+    <div class="pane" id="pane"></div>
+  </section>
+</main>
+<script>
+const TABS = ["Reasoning", "Ask", "Contradictions", "Timeline", "Evidence", "Add evidence", "Report"];
+const S = { cases: [], caseId: null, stage: null, added: [], data: null, tab: "Reasoning", suspect: null,
+            qa: [], doc: null, hitLine: null, lastChange: null };
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+async function api(path, body) {
+  const r = await fetch(path, body ? {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)} : {});
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+const base = () => ({case: S.caseId, stage: S.stage, added: S.added});
+
+async function loadCase() {
+  S.data = await api("/api/case", base());
+  S.stage = S.data.case.stage;
+  if (!S.suspect || !S.data.suspects.some(s => s.name === S.suspect)) S.suspect = S.data.conclusion.suspect;
+  render();
+}
+
+function render() {
+  const d = S.data, c = d.case;
+  const last = c.stages[c.stages.length - 1];
+  document.getElementById("stageInfo").textContent =
+    `${d.documents.length} documents · evidence stage ${c.stage} of ${last}` + (S.added.length ? ` · ${S.added.length} added` : "");
+  document.getElementById("uncoverBtn").disabled = c.stage >= last;
+  const k = d.conclusion;
+  document.getElementById("verdict").innerHTML = `
+    <div class="lbl">Most likely suspect</div>
+    <div class="who">${esc(k.suspect)}</div>
+    <span class="conf ${k.confidence}">${esc(k.confidence)} confidence</span>
+    <ul>${k.reasons.map(r => `<li>${esc(r)}</li>`).join("")}</ul>`;
+  const max = Math.max(1, ...d.suspects.map(s => Math.abs(s.score)));
+  document.getElementById("suspects").innerHTML = d.suspects.map(s => {
+    const pct = Math.abs(s.score) / max * 50;
+    const bar = s.score >= 0 ? `left:50%;width:${pct}%;background:var(--bad)` : `right:50%;width:${pct}%;background:var(--good)`;
+    return `<div class="suspect ${s.name === S.suspect ? "sel" : ""}" data-name="${esc(s.name)}">
+      <div class="row"><span class="name">${esc(s.name)}</span><span class="score">${s.score > 0 ? "+" : ""}${s.score.toFixed(1)}</span></div>
+      <div class="meta">${esc(s.role)} · alibi ${esc(s.alibi)} · ${esc(s.opportunity || "no window")}</div>
+      <div class="bar"><i style="${bar}"></i></div></div>`;
+  }).join("");
+  document.querySelectorAll(".suspect").forEach(el => el.onclick = () => { S.suspect = el.dataset.name; S.tab = "Reasoning"; render(); });
+  document.getElementById("tabs").innerHTML = TABS.map(t => `<button class="${t === S.tab ? "on" : ""}">${t}</button>`).join("");
+  document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => { S.tab = b.textContent; render(); });
+  const pane = document.getElementById("pane");
+  pane.innerHTML = ({ "Reasoning": reasoning, "Ask": askPane, "Contradictions": contradictions, "Timeline": timeline,
+                      "Evidence": evidence, "Add evidence": addPane, "Report": () => `<div class="md" id="md">Building report…</div>` })[S.tab]();
+  wire(pane);
+  if (S.tab === "Report") loadReport();
+  if (S.tab === "Evidence" && S.doc) showDoc(S.doc, S.hitLine);
+}
+
+const cite = (q, kind) => `<div class="cite" data-doc="${esc(q.doc)}" data-line="${q.line}">${kind ? `<span class="chip ${esc(kind)}">${esc(kind)}</span> ` : ""}“${esc(q.text)}” <b>${esc(q.cite)}</b></div>`;
+const docKind = id => (S.data.documents.find(d => d.id === id) || {}).kind;
+const weight = w => `<span class="w ${w > 0 ? "pos" : w < 0 ? "neg" : "zero"}">${w > 0 ? "+" : ""}${w.toFixed(1)}</span>`;
+
+function reasoning() {
+  const s = S.data.suspects.find(x => x.name === S.suspect);
+  const steps = [...s.steps].sort((a, b) => b.weight - a.weight);
+  return `<h2>Reasoning log: ${esc(s.name)} <span class="muted">(score ${s.score > 0 ? "+" : ""}${s.score.toFixed(1)})</span></h2>
+    <div class="legend"><span><span class="chip fact">fact</span> decided by records</span>
+      <span><span class="chip claim">claim</span> what someone said</span>
+      <span><span class="chip assumption">assumption</span> an inference</span>
+      <span><span class="chip speculation">speculation</span> a guess, weighs 0</span>
+      <span><b class="w pos" style="min-width:0">+</b> toward them, <b class="w neg" style="min-width:0">−</b> away</span></div>` +
+    steps.map(st => `<div class="step"><div class="head">${weight(st.weight)}<span class="chip ${st.label}">${st.label}</span>
+      <span>${esc(st.text)}${st.source === "llm" ? ' <span class="muted">(LLM)</span>' : ""}</span></div>
+      <div class="cites">${st.tested ? cite(st.tested, "statement") : ""}${st.evidence.map(q => cite(q, docKind(q.doc))).join("")}</div></div>`).join("");
+}
+
+function askPane() {
+  const ex = ["Who did it?", `Did ${S.data.conclusion.suspect.split(" ")[0]} lie?`, "What contradictions are there?",
+              "How confident are you?", "Who had the opportunity?", `Why not ${S.data.suspects[1]?.name.split(" ")[0]}?`];
+  return `<h2>Ask a follow-up question</h2>
+    <div class="ask"><input type="text" id="q" placeholder="e.g. Where was Marcus at 19:45?"><button id="askBtn">Ask</button></div>
+    <div class="examples">${ex.map(e => `<button class="ex">${esc(e)}</button>`).join("")}</div>
+    ${S.qa.map(x => `<div class="qa"><div class="q">${esc(x.question)}</div><div class="a">${esc(x.text)}</div>
+      <div class="cites" style="margin-left:0">${x.citations.map(c => cite(c, c.kind)).join("")}</div></div>`).join("")}`;
+}
+
+function contradictions() {
+  const d = S.data;
+  const blocks = d.contradictions.map(c => `<div class="step"><div>${esc(c.text)}</div><div class="cites">${cite(c.claim, docKind(c.claim.doc))}${c.evidence.map(q => cite(q, docKind(q.doc))).join("")}</div></div>`);
+  const disp = d.disputes.map(x => `<div class="step"><div><span class="chip assumption">disputed</span> ${esc(x.text)}</div><div class="cites">${cite(x.record, "record")}${cite(x.cctv, "record")}</div></div>`);
+  const spec = d.speculation.map(x => `<div class="step"><div><span class="chip speculation">speculation</span> ${esc(x.speaker)} about ${esc(x.about.join(", "))}, not counted</div><div class="cites">${cite(x.quote)}</div></div>`);
+  return `<h2>Contradictions</h2>${blocks.join("") || '<p class="muted">None found.</p>'}
+    <h2 style="margin-top:22px">Misleading evidence set aside</h2>${disp.join("") + spec.join("") || '<p class="muted">None.</p>'}`;
+}
+
+function timeline() {
+  return `<h2>Timeline</h2><p class="muted">Records (badge, login, CCTV) and statements in time order. Struck-through records are disputed and not used.</p>
+    <table><tr><th>Time</th><th>Type</th><th>Who</th><th>Where</th><th>Source</th></tr>
+    ${S.data.timeline.map(e => `<tr class="${e.disputed ? "disputed" : ""}"><td>${esc(e.time)}</td><td><span class="chip ${e.kind === "record" ? "record" : "statement"}">${e.kind === "record" ? "record" : "statement"}</span></td>
+      <td>${esc(e.actor || "(unidentified)")}</td><td>${esc(e.location || "")}</td><td>${cite(e.quote)}</td></tr>`).join("")}</table>`;
+}
+
+function evidence() {
+  const docs = [...S.data.documents].sort((a, b) => a.kind.localeCompare(b.kind) || a.id.localeCompare(b.id));
+  return `<h2>Evidence documents</h2><div class="docs"><div class="doclist">${docs.map(d =>
+    `<div class="${d.id === S.doc ? "on" : ""}" data-docid="${esc(d.id)}"><span class="chip ${d.kind}">${d.kind}</span> ${esc(d.title)}<br><small>${esc(d.id)} · stage ${d.stage}</small></div>`).join("")}</div>
+    <div id="viewer" class="viewer muted">Choose a document, or click any citation.</div></div>`;
+}
+
+function addPane() {
+  const tpl = `---\nid: new_witness\ntype: interview\ntitle: Interview with a new witness\ndate: ${S.data.case.date}\nauthor: Full Name\n---\nQ: Where were you?\nA: I was at ... from 8 PM to 9 PM.`;
+  return `<h2>Add evidence and reassess</h2>
+    <p class="muted">Paste a document with front matter (id, type, title, date, optional author). Types: interview, chat, email, notice (statements) or badge_log, login_log, cctv (records). The whole investigation runs again and the changes are listed.</p>
+    <textarea id="newDoc">${esc(tpl)}</textarea>
+    <p><button id="addBtn">Add and reassess</button></p>
+    ${S.lastChange ? `<div class="banner ${S.lastChange.leader_changed ? "changed" : ""}">${S.lastChange.leader_changed ? `Conclusion changed: ${esc(S.lastChange.leader_before)} → ${esc(S.lastChange.leader_after)}` : `Conclusion holds: ${esc(S.lastChange.leader_after)}`}</div><pre class="cmp">${esc(S.lastChange.text)}</pre>` : ""}`;
+}
+
+async function loadReport() {
+  const r = await api("/api/report", base());
+  document.getElementById("md").innerHTML = md(r.markdown);
+  wire(document.getElementById("md"));
+}
+
+function md(src) {
+  const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\*(.+?)\*/g, "<em>$1</em>").replace(/`(.+?)`/g, "<code>$1</code>");
+  const out = []; let list = null, table = null;
+  const close = () => { if (list) { out.push(`</${list}>`); list = null; } if (table) { out.push("</table>"); table = null; } };
+  for (const line of src.split("\n")) {
+    let m;
+    if ((m = line.match(/^(#{1,3}) (.*)/))) { close(); out.push(`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`); }
+    else if (line.startsWith("|")) {
+      if (/^\|[-| ]+\|$/.test(line)) continue;
+      const cells = line.slice(1, -1).split(" | ");
+      if (!table) { close(); table = true; out.push("<table><tr>" + cells.map(c => `<th>${inline(c)}</th>`).join("") + "</tr>"); }
+      else out.push("<tr>" + cells.map(c => `<td>${inline(c)}</td>`).join("") + "</tr>");
+    }
+    else if ((m = line.match(/^(\s*)(- |\d+\. )(.*)/))) {
+      const want = m[2].trim() === "-" ? "ul" : "ol";
+      if (list !== want) { close(); list = want; out.push(`<${want}>`); }
+      out.push(`<li style="margin-left:${m[1].length * 8}px">${inline(m[3])}</li>`);
+    }
+    else if (!line.trim()) close();
+    else { close(); out.push(`<p>${inline(line)}</p>`); }
+  }
+  close();
+  return out.join("");
+}
+
+async function showDoc(id, line) {
+  S.doc = id; S.hitLine = line;
+  const v = document.getElementById("viewer");
+  if (!v) return;
+  const d = await api("/api/document", {...base(), doc: id});
+  v.classList.remove("muted");
+  v.innerHTML = `<div style="margin-bottom:8px"><span class="chip ${d.kind}">${d.kind}</span> <b>${esc(d.title)}</b> <span class="muted">${esc(d.id)} · ${esc(d.date)}${d.author ? " · " + esc(d.author) : ""}</span></div>` +
+    d.lines.map((l, i) => `<div class="ln ${i + 1 === line ? "hit" : ""}" id="ln${i + 1}"><span>${i + 1}</span><span>${esc(l)}</span></div>`).join("");
+  document.querySelectorAll(".doclist div").forEach(x => x.classList.toggle("on", x.dataset.docid === id));
+  if (line) document.getElementById("ln" + line)?.scrollIntoView({block: "center"});
+}
+
+function wire(root) {
+  root.querySelectorAll(".cite").forEach(el => el.onclick = () => { S.tab = "Evidence"; S.doc = el.dataset.doc; S.hitLine = +el.dataset.line; render(); });
+  root.querySelectorAll(".doclist div").forEach(el => el.onclick = () => showDoc(el.dataset.docid, null));
+  const ask = async q => {
+    if (!q.trim()) return;
+    try { S.qa.unshift(await api("/api/ask", {...base(), question: q})); } catch (e) { S.qa.unshift({question: q, text: "Error: " + e.message, citations: []}); }
+    render();
+  };
+  const q = root.querySelector("#q");
+  if (q) { q.onkeydown = e => { if (e.key === "Enter") ask(q.value); }; root.querySelector("#askBtn").onclick = () => ask(q.value); q.focus(); }
+  root.querySelectorAll(".ex").forEach(b => b.onclick = () => ask(b.textContent));
+  const add = root.querySelector("#addBtn");
+  if (add) add.onclick = async () => {
+    const text = root.querySelector("#newDoc").value;
+    try {
+      const r = await api("/api/reassess", {...base(), new_evidence: text});
+      S.added.push(text); S.lastChange = r; S.data = r.overview; render();
+    } catch (e) { alert("Could not add this evidence: " + e.message); }
+  };
+}
+
+document.getElementById("uncoverBtn").onclick = async () => {
+  const c = S.data.case, next = c.stages.find(s => s > c.stage);
+  const r = await api("/api/reassess", {...base(), new_stage: next});
+  S.stage = next; S.lastChange = r; S.data = r.overview; S.tab = "Add evidence"; render();
+};
+document.getElementById("resetBtn").onclick = () => selectCase(S.caseId, true);
+document.getElementById("caseSel").onchange = e => selectCase(e.target.value, false);
+
+async function selectCase(id, keepStage) {
+  const c = S.cases.find(x => x.id === id);
+  Object.assign(S, {caseId: id, added: [], qa: [], doc: null, hitLine: null, lastChange: null, suspect: null,
+                    stage: c.stages.length > 1 ? c.stages[0] : c.stages[c.stages.length - 1]});
+  await loadCase();
+}
+
+(async () => {
+  S.cases = await api("/api/cases");
+  const sel = document.getElementById("caseSel");
+  sel.innerHTML = S.cases.map(c => `<option value="${esc(c.id)}">${esc(c.title)} (${esc(c.difficulty)})</option>`).join("");
+  const want = new URLSearchParams(location.search);
+  const id = want.get("case") || S.cases[0].id;
+  sel.value = id;
+  await selectCase(id);
+  if (want.get("stage")) { S.stage = +want.get("stage"); await loadCase(); }
+  if (want.get("tab")) { S.tab = want.get("tab"); if (want.get("q")) { S.qa.unshift(await api("/api/ask", {...base(), question: want.get("q")})); } render(); }
+})();
+</script>
+</body>
+</html>

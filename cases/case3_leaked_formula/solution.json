@@ -4,20 +4,141 @@
   "motive": "Veltrix's Rhea Vance offered 50,000 for the formula; Noah needed money for debts.",
   "method": "Noah came back at 21:40, entered the Lab Wing at 22:09 and, at 22:12, used Iris's saved login on Lab Terminal 3 to download the formula, while Iris was already heading to her car.",
   "lies": [
-    {"person": "Noah Fisk", "claim": "I've never spoken to anyone at Veltrix.", "contradicted_by": ["chat_noah_rhea"]}
+    {
+      "person": "Noah Fisk",
+      "claim": "I've never spoken to anyone at Veltrix.",
+      "contradicted_by": [
+        "chat_noah_rhea"
+      ]
+    }
   ],
-  "honest": ["Iris Kemp", "Paul Ortega", "Zara Quinn"],
+  "honest": [
+    "Iris Kemp",
+    "Paul Ortega",
+    "Zara Quinn"
+  ],
   "red_herrings": [
-    {"person": "Iris Kemp", "why": "Her account downloaded the file at 22:15 and she resented being passed over, but CCTV shows her in the car park at 22:19, and the person at the terminal at 22:12 matches Noah's badge entry."},
-    {"person": "Zara Quinn", "why": "Speculates that it must have been Iris."}
+    {
+      "person": "Iris Kemp",
+      "why": "Her account downloaded the file at 22:15 and she resented being passed over, but CCTV shows her in the car park at 22:19, and the person at the terminal at 22:12 matches Noah's badge entry."
+    },
+    {
+      "person": "Zara Quinn",
+      "why": "Speculates that it must have been Iris."
+    }
   ],
-  "disputed": ["login_log:L1"],
-  "speculation": [{"speaker": "Zara Quinn", "about": "Iris Kemp"}],
-  "motives": {"Noah Fisk": ["gain", "money"], "Iris Kemp": ["conflict"], "Paul Ortega": [], "Zara Quinn": []},
-  "cctv_matches": [{"cctv": "cctv:L1", "person": "Noah Fisk"}],
-  "connections": [{"suspect": "Noah Fisk", "party": "Rhea Vance", "denied": true}],
+  "disputed": [
+    "login_log:L1"
+  ],
+  "speculation": [
+    {
+      "speaker": "Zara Quinn",
+      "about": "Iris Kemp"
+    }
+  ],
+  "motives": {
+    "Noah Fisk": [
+      "gain",
+      "money"
+    ],
+    "Iris Kemp": [
+      "conflict"
+    ],
+    "Paul Ortega": [],
+    "Zara Quinn": []
+  },
+  "cctv_matches": [
+    {
+      "cctv": "cctv:L1",
+      "person": "Noah Fisk"
+    }
+  ],
+  "connections": [
+    {
+      "suspect": "Noah Fisk",
+      "party": "Rhea Vance",
+      "denied": true
+    }
+  ],
   "opportunity": {
-    "at scene": ["Noah Fisk"],
-    "on site": ["Iris Kemp", "Paul Ortega", "Zara Quinn"]
-  }
+    "at scene": [
+      "Noah Fisk"
+    ],
+    "on site": [
+      "Iris Kemp",
+      "Paul Ortega",
+      "Zara Quinn"
+    ]
+  },
+  "timeline": [
+    {
+      "time": "2026-10-07 21:40",
+      "person": "Noah Fisk",
+      "doc": "badge_log",
+      "location": "Main Door"
+    },
+    {
+      "time": "2026-10-07 21:40",
+      "person": "Noah Fisk",
+      "doc": "interview_noah"
+    },
+    {
+      "time": "2026-10-07 22:09",
+      "person": "Noah Fisk",
+      "doc": "badge_log",
+      "location": "Lab Wing"
+    },
+    {
+      "time": "2026-10-07 22:12",
+      "person": null,
+      "doc": "cctv",
+      "location": "Lab Wing"
+    },
+    {
+      "time": "2026-10-07 22:15",
+      "person": "Iris Kemp",
+      "doc": "login_log",
+      "location": "Lab Wing"
+    },
+    {
+      "time": "2026-10-07 22:15",
+      "person": "Iris Kemp",
+      "doc": "interview_iris"
+    },
+    {
+      "time": "2026-10-07 22:18",
+      "person": "Iris Kemp",
+      "doc": "badge_log",
+      "location": "Main Door"
+    },
+    {
+      "time": "2026-10-07 22:19",
+      "person": "Iris Kemp",
+      "doc": "cctv",
+      "location": "Car Park"
+    },
+    {
+      "time": "2026-10-08 09:30",
+      "person": null,
+      "doc": "brief"
+    }
+  ],
+  "key_evidence": [
+    {
+      "doc": "login_log",
+      "fact": "Iris Kemp's account logged in to Lab Terminal 3 and downloaded the formula at 22:15."
+    },
+    {
+      "doc": "cctv",
+      "fact": "A person sat at Lab Terminal 3 at 22:12 while Iris Kemp was seen in the car park at 22:19."
+    },
+    {
+      "doc": "chat_noah_rhea",
+      "fact": "Rhea Vance of Veltrix offered Noah 50,000 for the formula, and Noah needed money for his debts."
+    },
+    {
+      "doc": "badge_log",
+      "fact": "Noah Fisk badged into the Lab Wing at 22:09."
+    }
+  ]
 }

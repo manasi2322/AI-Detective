@@ -15,6 +15,8 @@
   ask       <case> "question" [--llm] follow-up question, answered with checked citations
   reassess  <case> [--add FILE ...]  add evidence (or uncover the next stage) and show what changed
   chat      <case>                   interactive: questions, :uncover, :add FILE, :report
+  web       [cases_dir] [--port N]   local web UI at http://127.0.0.1:8000
+  llm-run   [cases_dir]              live Claude run on every case; records accepted/rejected items
   --stage N on any case command uses only the evidence uncovered up to stage N.
   add --llm to any command to also run Claude extraction (needs the anthropic SDK + credentials).
 """
@@ -32,7 +34,7 @@ from .timeline import Timeline
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="detective", description="AI Detective - evidence explorer")
-    ap.add_argument("command", choices=["timeline", "search", "entities", "alibis", "speculation", "opportunity", "analyze", "motives", "links", "investigate", "report", "evaluate", "ask", "reassess", "chat"])
+    ap.add_argument("command", choices=["timeline", "search", "entities", "alibis", "speculation", "opportunity", "analyze", "motives", "links", "investigate", "report", "evaluate", "ask", "reassess", "chat", "web", "llm-run"])
     ap.add_argument("case_dir", nargs="?")
     ap.add_argument("query", nargs="?", default="")
     ap.add_argument("--person")
@@ -44,6 +46,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--stage", type=int, help="only evidence uncovered up to this stage")
     ap.add_argument("--out", help="report: write to this file instead of printing")
     ap.add_argument("-v", "--verbose", action="store_true", help="evaluate: list every check")
+    ap.add_argument("--port", type=int, default=8000, help="web: port to listen on")
     ap.add_argument("--add", nargs="+", default=[], metavar="FILE", help="reassess: evidence documents to add")
     args = ap.parse_args(argv)
 
@@ -53,6 +56,26 @@ def main(argv: list[str] | None = None) -> int:
         results = evaluate_all(args.case_dir or "cases")
         print(render(results, args.verbose))
         return 0 if all(r.solved for r in results) else 1
+    if args.command == "llm-run":
+        from .llm_run import check_credentials, run_all, summarise
+
+        problem = check_credentials()
+        if problem:
+            print(problem)
+            return 2
+        print(summarise(run_all(args.case_dir or "cases")))
+        print("Details written to samples/llm_runs/.")
+        return 0
+    if args.command == "web":
+        from .web import serve
+
+        server = serve(args.case_dir or "cases", args.port)
+        print(f"AI Detective web UI: http://127.0.0.1:{server.server_address[1]}  (Ctrl+C to stop)")
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        return 0
     if not args.case_dir:
         ap.error("case_dir is required")
     if args.command == "chat":

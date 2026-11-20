@@ -101,5 +101,59 @@
       "party": "Alex Brandt",
       "denied": true
     }
+  ],
+  "timeline": [
+    {
+      "time": "2026-03-12 18:00",
+      "person": "Marcus Hale",
+      "doc": "interview_marcus"
+    },
+    {
+      "time": "2026-03-12 18:02",
+      "person": "Marcus Hale",
+      "doc": "badge_log",
+      "location": "Main Entrance"
+    },
+    {
+      "time": "2026-03-12 18:15",
+      "person": "Daniel Okafor",
+      "doc": "interview_daniel",
+      "location": "Design Lab"
+    },
+    {
+      "time": "2026-03-12 19:40",
+      "person": null,
+      "doc": "cctv_summary",
+      "location": "Main Entrance"
+    },
+    {
+      "time": "2026-03-12 19:41",
+      "person": "Marcus Hale",
+      "doc": "badge_log",
+      "location": "Main Entrance"
+    },
+    {
+      "time": "2026-03-12 19:44",
+      "person": "Marcus Hale",
+      "doc": "badge_log",
+      "location": "Design Lab"
+    },
+    {
+      "time": "2026-03-12 19:58",
+      "person": null,
+      "doc": "cctv_summary",
+      "location": "Parking Garage"
+    },
+    {
+      "time": "2026-03-12 20:47",
+      "person": "Lena Torres",
+      "doc": "badge_log",
+      "location": "Design Lab"
+    },
+    {
+      "time": "2026-03-13 08:45",
+      "person": "Daniel Okafor",
+      "doc": "interview_daniel"
+    }
   ]
 }
