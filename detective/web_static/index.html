@@ -328,7 +328,13 @@ async function selectCase(id, keepStage) {
   sel.value = id;
   await selectCase(id);
   if (want.get("stage")) { S.stage = +want.get("stage"); await loadCase(); }
-  if (want.get("tab")) { S.tab = want.get("tab"); if (want.get("q")) { S.qa.unshift(await api("/api/ask", {...base(), question: want.get("q")})); } render(); }
+  // Deep links, e.g. ?case=case3_leaked_formula&uncover=1 or ?tab=Evidence&doc=badge_log&line=6
+  if (want.get("uncover")) { document.getElementById("uncoverBtn").click(); return; }
+  if (want.get("doc")) { S.doc = want.get("doc"); S.hitLine = +want.get("line") || null; S.tab = "Evidence"; }
+  if (want.get("suspect")) S.suspect = want.get("suspect");
+  if (want.get("tab")) S.tab = want.get("tab");
+  for (const q of want.getAll("q").reverse()) S.qa.unshift(await api("/api/ask", {...base(), question: q}));
+  render();
 })();
 </script>
 </body>

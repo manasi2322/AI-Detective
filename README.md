@@ -5,6 +5,13 @@ emails, CCTV summaries and access logs. It is built to reason from evidence, not
 every finding is tied to an exact quote from a source document, and anything that cannot be
 found in the evidence is rejected.
 
+- **Technical write-up:** [docs/DESIGN.md](docs/DESIGN.md) covers the architecture, reasoning,
+  anti-hallucination layers, evaluation and limits.
+- **Sample output:** [samples/](samples/) has the case reports, question and chat transcripts, the
+  evaluation output and screenshots.
+
+![Web UI: reasoning log for Case 1](samples/screenshots/1_case1_reasoning.png)
+
 ## Progress
 
 | Milestone | Scope | Status | Tests |
@@ -13,17 +20,22 @@ found in the evidence is rejected.
 | 2 | Alibi checking, speculation flags, opportunity, holdout case | Done (~35%) | 28 |
 | 3 | Disputed records, motives, links, investigator with a labelled reasoning log | Done (~60%) | 17 |
 | 4 | Cases 2 and 3, explained confidence, checked case reports, evaluation script, reassessment as evidence arrives | Done (~80%) | 27 |
-| 5 | Follow-up questions from an investigator, live LLM runs, final polish | Next | |
+| 5 | Follow-up questions, adding evidence and reassessing, chat mode, web UI, more evaluation metrics, design write-up, samples | Done (100%) | 37 |
 
-**Total: 94 automated tests, all passing.** Evaluation: culprit named correctly in 3/3 cases, 66/66 answer-key checks passed.
+**Total: 131 automated tests, all passing.** Evaluation: culprit named correctly in 3/3 cases,
+109/109 answer-key checks passed. Timeline accuracy, retrieval@5 and invented-evidence rejection
+are all 100%.
 
 ## Quick start
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install pytest
-pytest -q                                   # 94 passed
+pytest -q                                   # 131 passed
 python evaluate.py                          # score all three cases against their answer keys
+python -m detective web                     # web UI at http://127.0.0.1:8000
+python -m detective chat cases/case3_leaked_formula --stage 1    # interactive; try :uncover
+python -m detective ask  cases/case1_missing_laptop "Did Marcus lie?"
 ```
 
 ---
@@ -385,6 +397,117 @@ python -m detective links       cases/case2_gallery_switch        # disputed gua
 
 ---
 
+## Milestone 5: questions, reassessment, interfaces and write-up (100%)
+
+The investigator can now ask follow-up questions, add or uncover evidence and see exactly what
+changes, through the command line, an interactive chat or a web UI. The evaluation measures the
+brief's criteria directly, and the design is written up in [docs/DESIGN.md](docs/DESIGN.md).
+
+### What was built
+
+- **Follow-up questions** (`qa.py`). Questions like these are answered from the structured
+  findings, with every citation tagged as a record, statement, assumption or speculation:
+  - "Did Sam lie?" lists his statements that records contradict or confirm;
+  - "Where was Marcus at 19:45?" gives what the records show, any assumptions, then what people
+    said, including disputed records that were set aside;
+  - "Who was in the Design Lab at 20:50?";
+  - motive, alibi, why / why not, who did it, how confident, contradictions, opportunity,
+    connections, and what happened at a given time.
+
+  Anything else falls back to an evidence search with no conclusion drawn. An unknown name
+  ("Where was Ruth?") is said to be unknown, not guessed. With `--llm`, Claude phrases the answer;
+  any quote it gives that isn't in the documents is dropped and listed.
+- **Adding evidence and reassessing** (`reassess.py`). Uncovering a case's next stage, or adding a
+  new document, re-runs the whole investigation from scratch and shows:
+  - the before/after ranking and confidence;
+  - for each suspect, the steps that stopped counting and the new ones;
+  - new disputed records and new contradictions.
+- **Interactive chat** (`chat`): questions plus `:uncover`, `:add FILE`, `:who` and
+  `:report [FILE]`.
+- **Web UI** (`web`). Standard library only, no external scripts. It shows:
+  - the verdict and confidence explanation, and the suspect ranking;
+  - each suspect's reasoning log;
+  - a question box, contradictions and misleading evidence, and the timeline (disputed records
+    struck through);
+  - an evidence viewer where every citation opens the source line;
+  - adding or uncovering evidence with a before/after banner, and the full report.
+
+  The server keeps no state, accepts only known case folders and caps request size. There's a
+  light and a dark theme.
+- **Evaluation metrics for the brief's criteria** (`evaluate.py`):
+  - **timeline accuracy:** each case's key events must be found with the right time, person, place
+    and source;
+  - **retrieval@5:** a search for each key fact must find its document in the top 5;
+  - **grounding attack:** about 30 believable fakes per case (the real line with one detail
+    changed, such as 19:41 → 19:44), plus facts citing statements and weighted speculation, go
+    through the event extractor, the investigator and the answerer. All must be rejected, and all
+    genuine counterparts accepted.
+- **Live LLM run** (`llm-run`). It runs Claude's extraction, reasoning steps and answers on every
+  case and records what was accepted and rejected, with reasons, in `samples/llm_runs/`. It stops
+  cleanly without credentials.
+- **Write-up and samples:**
+  - [docs/DESIGN.md](docs/DESIGN.md);
+  - [samples/reports/](samples/reports/): the three case reports, citations checked;
+  - [samples/transcripts/](samples/transcripts/): question answers for each case, a chat session
+    uncovering Case 3, and adding evidence to Case 1;
+  - [samples/evaluation.md](samples/evaluation.md);
+  - [samples/screenshots/](samples/screenshots/).
+
+### Results
+
+```
+| Case                         | Named       | Confidence | Timeline | Retrieval@5 | Invented rejected | Checks |
+| The Missing Prototype Laptop | Marcus Hale | high       | 100%     | 100%        | 100%              | 35/35  |
+| The Gallery Switch           | Victor Lane | high       | 100%     | 100%        | 100%              | 37/37  |
+| The Leaked Formula           | Noah Fisk   | medium     | 100%     | 100%        | 100%              | 37/37  |
+
+Culprit named correctly in 3/3 cases; 109/109 checks passed (100%).
+```
+
+| Screenshot | Shows |
+|---|---|
+| [Case 1 reasoning](samples/screenshots/1_case1_reasoning.png) | Verdict, confidence explanation, ranking and Marcus's cited reasoning log |
+| [Case 2 contradictions](samples/screenshots/2_case2_contradictions.png) | The friend's false alibi, the witness conflict and the disputed guard badge |
+| [Case 2 questions](samples/screenshots/3_case2_ask.png) | "Is Celia telling the truth?" and "Where was Omar at 21:10?" |
+| [Case 3 at stage 1](samples/screenshots/4_case3_stage1_wrong_lead.png) | The early, wrong lead (Iris) |
+| [Case 3 after uncovering](samples/screenshots/5_case3_uncover_reassess.png) | "Conclusion changed: Iris Kemp → Noah Fisk" with every change explained |
+| [Evidence viewer](samples/screenshots/6_evidence_viewer.png) | A citation opened at its source line |
+| [Report](samples/screenshots/7_report.png) | The case report in the browser |
+| [Dark mode](samples/screenshots/8_dark_mode.png) | Case 2 reasoning in the dark theme |
+
+### Try it
+
+```bash
+python -m detective web                                            # then open http://127.0.0.1:8000
+python -m detective ask cases/case2_gallery_switch "Is Celia telling the truth?"
+python -m detective ask cases/case3_leaked_formula "Where was Iris at 22:15?"
+python -m detective reassess cases/case3_leaked_formula --stage 1  # uncover stage 2 and compare
+python -m detective reassess cases/case1_missing_laptop --add samples/new_evidence/case1_sam_returns.txt
+python -m detective chat cases/case3_leaked_formula --stage 1      # :uncover, :add FILE, :report
+python evaluate.py -v                                              # every check, every case
+python -m detective llm-run                                        # live Claude run (needs ANTHROPIC_API_KEY)
+```
+
+### Tests (37)
+
+| File | What it checks |
+|---|---|
+| `test_qa.py` (20) | Liars caught and honest people cleared (including a friend's false alibi); "where" answers separate records, statements and assumptions and mention disputed records; who was at a place; unknown names aren't invented; every answer to 10 sample questions is grounded; unrecognised questions fall back to search; LLM answers keep real quotes and drop invented ones |
+| `test_reassess.py` (6) | Uncovering Case 3 changes the conclusion, with the reasons; added evidence is reassessed from scratch without changing the original case; duplicates are refused; stages uncover in order; the chat runs questions and commands |
+| `test_web.py` (5) | Case overview, questions, reassessment, report and document endpoints; unknown cases and bad evidence are refused; the HTTP server works end to end |
+| `test_metrics.py` (4) | Invented evidence is always rejected and genuine evidence accepted; the fakes are believable; timeline and retrieval metrics; a missing timeline event fails its check |
+| `test_llm_run.py` (2) | The live-run recorder counts accepted and rejected items correctly and writes its JSON and summary |
+
+### Still open
+
+- **The live Claude run hasn't been done:** this machine had no API credentials. Set
+  `ANTHROPIC_API_KEY` and run `python -m detective llm-run` to record it. The LLM code paths are
+  verified offline with stand-in models and the grounding attack.
+- **The three cases were written alongside the rules.** A case written by someone else would be
+  the strongest test of how well the system generalises.
+
+---
+
 ## Architecture
 
 ```
@@ -395,6 +518,8 @@ tests/fixtures/holdout_violin second case with its own answer key, used only by 
 tests/fixtures/disputed_badge small case where CCTV disputes a badge swipe
 cases/<case>/documents/*.txt  `stage: 2` in front matter = evidence uncovered later (Case 3)
 evaluate.py                   score all cases against their answer keys
+docs/DESIGN.md                technical write-up
+samples/                      reports, transcripts, evaluation output, screenshots, new-evidence example
 
 detective/
   # Milestone 1
@@ -423,6 +548,12 @@ detective/
   statements.py        conflicts between witness statements, resolved by records where possible
   report.py            Markdown case report + citation checker that verifies the finished text
   evaluate.py          answer-key checks per case, summary table
+  # Milestone 5
+  qa.py                follow-up questions answered from the findings, citations tagged by kind
+  reassess.py          re-run on new or uncovered evidence and compare before/after
+  chat.py              interactive session (:uncover, :add, :who, :report)
+  web.py               local web UI + JSON API (standard library); page in web_static/index.html
+  llm_run.py           live Claude run on every case, recording accepted and rejected items
   # Shared
   pipeline.py          wires it together; final check that every quote it outputs is grounded
   cli.py               command-line explorer
